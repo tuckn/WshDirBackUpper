@@ -1,0 +1,40 @@
+{
+    "backUpSchema": {
+        "description": "Example Schema WshDirBackUpper",
+        "components": {
+            "dest": "\\\\MyNas\\BackUp",
+            "anyVal1": null
+        },
+        "tasks": {
+            "userAppData": {
+                "description": "Example task with options",
+                "srcDir": "C:\\Users\\Default\\AppData",
+                "destDir": "${dest}\\AppData\\#{yyyy}\\#{MM-dd}",
+                "ignoredRegExp": [
+                    "Windows\\\\WebCache",
+                    "Packages\\\\.*Cache\\\\",
+                    "\\.mui$",
+                    "\\.settingcontent-ms$"
+                ]
+            },
+            "appLog:current": {
+                "srcDir": "D:\\AppLogs\\#{yyyy}\\#{MM}",
+                "destDir": "${dest}\\AppLogs\\#{yyyy}\\#{MM}",
+                "syncMethod": "MIRROR",
+                "comparison": "CONTENT",
+                "isRecursive": false,
+                "copiesEmpDir": true,
+                "includesSymlink": true,
+                "matchedRegExp": "\\.csv$"
+            },
+            "appLog:lastMonth": {
+                "available": false,
+                "srcDir": "${anyVal1}:\\AppLogs\\#{yyyy\\[MM-1]}",
+                "destDir": "${dest}\\AppLogs\\#{yyyy\\[MM-1]}",
+                "syncMethod": "MIRROR",
+                "comparison": "TIME",
+                "matchedRegExp": "\\.csv$"
+            }
+        }
+    }
+}

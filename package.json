@@ -1,0 +1,109 @@
+{
+  "name": "@tuckn/WshDirBackUpper",
+  "description": "The WSH (Windows Script Host) CLI that mirror directories according to the schema defined in a JSON file.",
+  "version": "1.0.0",
+  "author": "Tuckn <tuckn333+github@gmail.com>",
+  "private": false,
+  "license": "MIT",
+  "homepage": "https://docs.tuckn.net/WshDirBackUpper",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tuckn/WshDirBackUpper.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tuckn/WshDirBackUpper/issues"
+  },
+  "keywords": [
+    "Windows",
+    "CLI",
+    "WSH",
+    "WSF",
+    "JScript",
+    "VBScript",
+    "backup",
+    "mirror",
+    "command",
+    "settings",
+    "json",
+    "preferences"
+  ],
+  "files": [
+    "dist"
+  ],
+  "main": "./dist/bundle.js",
+  "bin": {},
+  "scripts": {
+    "install:WshJest": "git submodule add https://github.com/tuckn/WshJest.git ./WshModules/WshJest",
+    "install:WshBasicPackage": "git submodule add https://github.com/tuckn/WshBasicPackage.git ./WshModules/WshBasicPackage",
+    "installModules": "run-s install:*",
+    "updateModules": "git submodule update --remote",
+    "fix:eslint": "npm run lint:eslint -- --fix",
+    "fix:prettier": "npm run lint:prettier -- --write",
+    "fix": "run-p fix:*",
+    "lint:eslint": "eslint --ext js,ts .",
+    "lint:prettier": "prettier -l \"**/*.{json,md,yml,yaml}\"",
+    "lint:type": "tsc --noEmit",
+    "lint": "run-p lint:*",
+    "test:name:DefOp_dryRun": ".\\scripts\\Test DirBackUpper -t DefOp_dryRun$",
+    "test:name:Op1_dryRun": ".\\scripts\\Test DirBackUpper -t Op1_dryRun$",
+    "test:name:DefOp": ".\\scripts\\Test DirBackUpper -t DefOp$",
+    "test:name:Op_syncMethod_MIRROR": ".\\scripts\\Test DirBackUpper -t Op_syncMethod_MIRROR$",
+    "test:name:Op_isRecursive": ".\\scripts\\Test DirBackUpper -t Op_isRecursive$",
+    "test:name:Op_copiesEmpDir": ".\\scripts\\Test DirBackUpper -t Op_copiesEmpDir$",
+    "test:name:Op_includesSymlink": ".\\scripts\\Test DirBackUpper -t Op_includesSymlink$",
+    "test:name:Op_RegExp": ".\\scripts\\Test DirBackUpper -t Op_RegExp$",
+    "test:name:Op_throws": ".\\scripts\\Test DirBackUpper -t Op_throws$",
+    "test:name:Schema_all_dryRun": ".\\scripts\\Test DirBackUpper -t Schema_all_dryRun$",
+    "test:name:Schema_log_dryRun": ".\\scripts\\Test DirBackUpper -t Schema_log_dryRun$",
+    "test:DirBackUpper": ".\\scripts\\Test DirBackUpper",
+    "test:name:backup_help": ".\\scripts\\Test Run -t backup_help$",
+    "test:name:backup_DefOp_dryRun": ".\\scripts\\Test Run -t backup_DefOp_dryRun$",
+    "test:name:backup_Op1_dryRun": ".\\scripts\\Test Run -t backup_Op1_dryRun$",
+    "test:name:schemaBackup_help_noArg": ".\\scripts\\Test Run -t schemaBackup_help_noArg$",
+    "test:name:schemaBackup_help": ".\\scripts\\Test Run -t schemaBackup_help$",
+    "test:name:schemaBackup_dryRun": ".\\scripts\\Test Run -t schemaBackup_dryRun$",
+    "test:name:schemaBackup_dryRun_task": ".\\scripts\\Test Run -t schemaBackup_dryRun_task$",
+    "test:name:schemaBackup_dryRun_defJson": ".\\scripts\\Test Run -t schemaBackup_dryRun_defJson$",
+    "test:Run": ".\\scripts\\Test Run",
+    "test:src:Run": ".\\scripts\\Test src:Run",
+    "build": "wsh-packager bundle ./Package.wsf",
+    "test:dist:module": ".\\scripts\\Test dist:module",
+    "test:dist:bundle": ".\\scripts\\Test dist:bundle",
+    "test:dist:Run": ".\\scripts\\Test dist:Run",
+    "test": "run-s test:dist:*",
+    "predocs": "rimraf ./docs",
+    "docs:common": "jsdoc --configure ./jsdoc.json",
+    "cp-docs-css": "cpy ./assets/styles/jsdoc.css ./docs/styles/",
+    "cp-docs-img": "cpy ./assets/img/**/* ./docs/img/",
+    "postdocs": "run-p cp-docs-*",
+    "docs": "run-s docs:*",
+    "up-build-doc": "run-s updateModules build docs"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "echo @FIXME \"npx lint-staged\" fixes all .js!"
+    }
+  },
+  "lint-staged": {
+    "*.{js}": "eslint --fix",
+    "*.{json,css,md,yml,yaml}": "prettier --write"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@tuckn/insert-gtag": "^1.1.0",
+    "@tuckn/wsh-packager": "^1.0.0",
+    "@types/activex-scripting": "^1.0.7",
+    "@types/windows-script-host": "^5.8.3",
+    "cpy-cli": "^3.1.1",
+    "docdash": "^1.2.0",
+    "eslint": "6.8.0",
+    "eslint-config-prettier": "6.11.0",
+    "eslint-plugin-jsdoc": "^29.1.3",
+    "eslint-plugin-prettier": "3.1.4",
+    "husky": "4.2.5",
+    "jsdoc": "^3.6.4",
+    "npm-run-all": "^4.1.5",
+    "prettier": "2.0.5",
+    "rimraf": "^3.0.2"
+  }
+}
