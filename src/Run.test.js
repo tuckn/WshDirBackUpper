@@ -157,7 +157,7 @@ describe('Run', function () {
   });
 
   var schema = {
-    backUpSchema: {
+    dirBackUpperSchema: {
       description: 'Example Schema WshDirBackUpper',
       components: {
         dest: '\\\\MyNas\\BackUp',
@@ -212,7 +212,7 @@ describe('Run', function () {
     // expect(retObj.error).toBeFalsy();
     // expect(retObj.stderr).toBe('');
 
-    var scm = schema.backUpSchema;
+    var scm = schema.dirBackUpperSchema;
     var tasks = scm.tasks;
     var expC = expect(retObj.stdout).toContain; // Shorthand
     expC('Start function dirbkup.backupDirUsingSchema');
@@ -285,7 +285,7 @@ describe('Run', function () {
     // expect(retObj.error).toBeFalsy();
     // expect(retObj.stderr).toBe('');
 
-    var scm = schema.backUpSchema;
+    var scm = schema.dirBackUpperSchema;
     var tasks = scm.tasks;
     var expC = expect(retObj.stdout).toContain; // Shorthand
     expC('Start function dirbkup.backupDirUsingSchema');
@@ -336,7 +336,7 @@ describe('Run', function () {
     // expect(retObj.error).toBeFalsy();
     // expect(retObj.stderr).toBe('');
 
-    var scm = schema.backUpSchema;
+    var scm = schema.dirBackUpperSchema;
     var tasks = scm.tasks;
     var expC = expect(retObj.stdout).toContain; // Shorthand
     expC('Start function dirbkup.backupDirUsingSchema');

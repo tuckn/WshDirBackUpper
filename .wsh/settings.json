@@ -1,5 +1,5 @@
 {
-    "backUpSchema": {
+    "dirBackUpperSchema": {
         "description": "Example Schema WshDirBackUpper",
         "components": {
             "dest": "\\\\MyNas\\BackUp",

@@ -37,7 +37,7 @@ Write your backing up schema on the JSON file, for example,
 
 ```json
 {
-  "backUpSchema": {
+  "dirBackUpperSchema": {
     "tasks": {
       "userAppData": {
         "srcDir": "C:\\Users\\Default\\AppData",
@@ -57,7 +57,7 @@ The defined variable can be used as `${valName}` in `tasks`.
 
 ```json
 {
-  "backUpSchema": {
+  "dirBackUpperSchema": {
     "components": {
       "dest": "\\\\MyNas\\BackUp",
     },
@@ -79,7 +79,7 @@ You can also use a date code literal to define `srcDir` and `destDir`.
 
 ```json
 {
-  "backUpSchema": {
+  "dirBackUpperSchema": {
     "tasks": {
       "appLog:current": {
         "srcDir": "C:\\logs\\csv",
@@ -99,7 +99,7 @@ See [WshUtil: parseDateLiteral](https://docs.tuckn.net/WshUtil/Wsh.Util.html#.pa
 And can also use backing up Options.
 
 ```json
-  "backUpSchema": {
+  "dirBackUpperSchema": {
     "tasks": {
       "userAppData": {
         "srcDir": "C:\\Users\\Default\\AppData",
@@ -155,9 +155,9 @@ Options:
   -D, --dir-path <path>  The path name where the schema JSON is located. <Directory Path> or "cwd", "portable", "userProfile". Default: "cmd" is "%CD%\.wsh"
   -F, --file-name <name> A JSON file name. (default: "settings.json")
   -E, --encoding <name>  The JSON file encoding. (default: "utf-8")
-  -N, --prop-name <name> A property name of the schema object. (default: "backUpSchema")
+  -N, --prop-name <name> A property name of the schema object. (default: "dirBackUpperSchema")
   -T, --task <name>      Specify the task name to back up. e.g. "work:*" (default: "*")
-  -L, --logger <val>     <level>/<transportaion>. e.g. "warn/popup".  (default: "info/console")
+  -L, --logger <val>     <level>/<transportation>. e.g. "warn/popup".  (default: "info/console")
   -R, --dry-run          No execute. Outputs the string of command. (default: false)
   -h, --help             Output usage information
 ```
