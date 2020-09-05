@@ -167,10 +167,13 @@
     } // }}}
 
     // Compare differences of file and copy {{{
-    lggr.info('Compare "' + comparison + '" differences of file and copy');
+    lggr.info('Comparing a difference of file ' + comparison);
 
     srcFileNames.forEach(function (srcFileName, i) {
+      if (lggr.transportation === 'CONSOLE') WScript.StdOut.Write('.');
+
       var logHeader = '[' + (i + 1) + '/' + srcNum + '] "' + srcFileName + '"';
+      lggr.debug(logHeader);
 
       var srcPath = path.join(srcDirPath, srcFileName);
       var destPath = path.join(destDirPath, srcFileName);
@@ -182,21 +185,19 @@
         }
 
         if (!includes(destFileNames, srcFileName, 'i')) {
-          lggr.info(logHeader + ' is copied (New file)');
+          lggr.info('Copied ' + logHeader + ' (New file)');
           return copyFunc(srcPath, destPath);
         }
 
         if (/^time$/i.test(comparison)) {
           if (fse.isTheSameFile(srcPath, destPath, 'date')) return;
-
-          lggr.info(logHeader + ' is copied (Modified date are different)');
+          lggr.info('Copied ' + logHeader + ' (Modified date are different)');
           return copyFunc(srcPath, destPath);
         }
 
         if (/^content$/i.test(comparison)) {
           if (fse.isTheSameFile(srcPath, destPath, 'MD5')) return;
-
-          lggr.info(logHeader + ' is copied (MD5 values are different)');
+          lggr.info('Copied ' + logHeader + ' (MD5 values are different)');
           return copyFunc(srcPath, destPath);
         }
 
@@ -216,7 +217,6 @@
       lggr.info('Remove none-existing files from dest');
       destFileNames.forEach(function (destFileName) {
         if (includes(srcFileNames, destFileName, 'i')) return;
-
         lggr.info('Remove ' + destFileName + ' in ' + destDirPath);
         return removeFunc(path.join(destDirPath, destFileName));
       });

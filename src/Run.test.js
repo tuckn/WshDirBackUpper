@@ -75,7 +75,7 @@ describe('Run', function () {
     expC('Reading srcDir recursively...');
     expC('Found ');
     expC('destDir is not existing');
-    expC('Compare "TIME" differences of file and copy');
+    expC('Comparing a difference of file TIME');
     // ...
     expC('Finished the function dirbkup.backupDirUsingLog');
   });
@@ -117,7 +117,7 @@ describe('Run', function () {
     expC('Reading srcDir...');
     expC('Found ');
     expC('destDir is not existing');
-    expC('Compare "CONTENT" differences of file and copy');
+    expC('Comparing a difference of file CONTENT');
     // ...
     expC('Finished the function dirbkup.backupDirUsingLog');
   });
@@ -237,7 +237,7 @@ describe('Run', function () {
       expC('ignoredRegExp: (' + params.ignoredRegExp.join('|') + ')');
       expC('throws: false');
       expC('Reading srcDir recursively...');
-      expC('Compare "TIME" differences of file and copy');
+      expC('Comparing a difference of file TIME');
     })();
 
     (function () {
@@ -361,7 +361,7 @@ describe('Run', function () {
       expC('ignoredRegExp: (' + params.ignoredRegExp.join('|') + ')');
       expC('throws: false');
       expC('Reading srcDir recursively...');
-      expC('Compare "TIME" differences of file and copy');
+      expC('Comparing a difference of file TIME');
     })();
 
     (function () {

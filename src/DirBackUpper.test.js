@@ -143,7 +143,7 @@ describe('DirBackUpper', function () {
     expC('Reading srcDir recursively...');
     expC('Found ');
     expC('destDir is not existing');
-    expC('Compare "TIME" differences of file and copy');
+    expC('Comparing a difference of file TIME');
     // ...
     expC('Finished the function dirbkup.backupDirUsingLog');
 
@@ -195,7 +195,7 @@ describe('DirBackUpper', function () {
     expC('Reading srcDir...');
     expC('Found ');
     expC('destDir is not existing');
-    expC('Compare "CONTENT" differences of file and copy');
+    expC('Comparing a difference of file CONTENT');
     expC('Start the function dirbkup.backupDirUsingLog');
     // ...
     expC('Remove none-existing files from dest');
@@ -247,9 +247,9 @@ describe('DirBackUpper', function () {
       expC('Reading srcDir recursively...');
       expC('Found ' + srcInfo.nums.all + ' files/directories in src');
       expC('destDir is not existing');
-      expC('Compare "TIME" differences of file and copy');
+      expC('Comparing a difference of file TIME');
       srcInfo.files.forEach(function (fileName) {
-        expC('"' + fileName + '" is copied (New file)');
+        expC('"' + fileName + '" (New file)');
       });
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
@@ -295,8 +295,8 @@ describe('DirBackUpper', function () {
       expC('Found '
         + (srcInfo.dirs.length + srcInfo.files.length + 1)
         + ' files/directories in src');
-      expC('Compare "TIME" differences of file and copy');
-      expC('"' + fileNameAdd + '" is copied (New file)');
+      expC('Comparing a difference of file TIME');
+      expC('"' + fileNameAdd + '" (New file)');
       srcInfo.files.forEach(function (fileName) {
         expect(logStr).not.toContain(fileName);
       });
@@ -336,7 +336,7 @@ describe('DirBackUpper', function () {
       expC('Found ' + srcInfo.nums.all + ' files/directories in src');
       expC('destDir is not existing');
       srcInfo.files.forEach(function (fileName) {
-        expC('"' + fileName + '" is copied (New file)');
+        expC('"' + fileName + '" (New file)');
       });
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
@@ -392,7 +392,7 @@ describe('DirBackUpper', function () {
       expC('Found ' + (srcInfo.nums.all - 1) + ' files/directories in src');
       expC('Reading destDir recursively...');
       expC('Found ' + (srcInfo.nums.all - srcInfo.nums.empDir) + ' files/directories in dest');
-      expC('Compare "TIME" differences of file and copy');
+      expC('Comparing a difference of file TIME');
       expC('Remove none-existing files from dest');
       srcInfo.files.forEach(function (fileName) {
         if (includes(fileName, fileNameRm, 'i')) {
@@ -441,7 +441,7 @@ describe('DirBackUpper', function () {
       expC('destDir is not existing');
       srcInfo.files.forEach(function (fileName) {
         if (includes(fileName, 'fileRoot', 'i')) {
-          expC('"' + fileName + '" is copied (New file)');
+          expC('"' + fileName + '" (New file)');
         } else {
           expect(logStr).not.toContain(fileName);
         }
@@ -475,7 +475,7 @@ describe('DirBackUpper', function () {
         if (includes(fileName, 'fileRoot', 'i')) {
           expect(logStr).not.toContain(fileName);
         } else {
-          expC('"' + fileName + '" is copied (New file)');
+          expC('"' + fileName + '" (New file)');
         }
       });
       srcInfo.links.forEach(function (linkName) {
@@ -520,7 +520,7 @@ describe('DirBackUpper', function () {
         if (includes(fileName, 'DirEmp', 'i')) {
           expect(logStr).not.toContain(fileName);
         } else {
-          expC('"' + fileName + '" is copied (New file)');
+          expC('"' + fileName + '" (New file)');
         }
       });
       srcInfo.links.forEach(function (linkName) {
@@ -550,7 +550,7 @@ describe('DirBackUpper', function () {
       expC('Found ' + (srcInfo.nums.all - srcInfo.nums.empDir) + ' files/directories in dest');
       srcInfo.files.forEach(function (fileName) {
         if (includes(fileName, 'DirEmp', 'i')) {
-          expC('"' + fileName + '" is copied (New file)');
+          expC('"' + fileName + '" (New file)');
         } else {
           expect(logStr).not.toContain(fileName);
         }
@@ -597,15 +597,15 @@ describe('DirBackUpper', function () {
         if (includes(fileName, 'DirEmp', 'i')) {
           expect(logStr).not.toContain(fileName);
         } else {
-          expC('"' + fileName + '" is copied (New file)');
+          expC('"' + fileName + '" (New file)');
         }
       });
       srcInfo.links.forEach(function (linkName) {
         if (linkName === 'DirQuux-Symlink') {
           // A directory is not logged
-          expect(logStr).not.toContain(linkName + '" is copied (New file)');
+          expect(logStr).not.toContain(linkName + '" (New file)');
         } else {
-          expC('"' + linkName + '" is copied (New file)');
+          expC('"' + linkName + '" (New file)');
         }
       });
       expC('Finished the function dirbkup.backupDirUsingLog');
@@ -649,7 +649,7 @@ describe('DirBackUpper', function () {
         if (includes(fileName, 'quux', 'i')) {
           expect(logStr).not.toContain(fileName);
         } else if (endsWith(fileName, '.txt', 'i')) {
-          expC('"' + fileName + '" is copied (New file)');
+          expC('"' + fileName + '" (New file)');
         } else {
           expect(logStr).not.toContain(fileName);
         }
@@ -750,7 +750,7 @@ describe('DirBackUpper', function () {
       expC('ignoredRegExp: (' + params.ignoredRegExp.join('|') + ')');
       expC('throws: false');
       expC('Reading srcDir recursively...');
-      expC('Compare "TIME" differences of file and copy');
+      expC('Comparing a difference of file TIME');
     })();
 
     // 2. task: appLog:current
