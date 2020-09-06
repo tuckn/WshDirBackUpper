@@ -30,7 +30,7 @@ var isSolidArray = util.isSolidArray;
  *   -V, --version                  Output the version number
  *   -S, --sync-method <method>     Synchronization method. "UPDATE" (default) or "MIRROR"
  *   -C, --comparison <method>      Comparison method. Default is "TIME" (modification date). otherwise "CONTENT" (MD5, slow)
- *   -R, --no-recursively           Excludes sub direcories
+ *   -R, --no-recursively           Excludes sub directories
  *   -P, --no-omit-empdir           Copies empty directories
  *   -L, --no-omit-symlink          Copies symbolic links
  *   -M, --matched-reg <expression> Matched files RegExp
@@ -45,11 +45,11 @@ var isSolidArray = util.isSolidArray;
 cli.addProgram({
   command: 'backup <srcDir> <destDir>',
   description: 'The command to back up a directory',
-  version: '1.0.0',
+  version: '2.1.0',
   options: [
     ['-S, --sync-method <method>', 'Synchronization method. "UPDATE" (default) or "MIRROR"'],
     ['-C, --comparison <method>', 'Comparison method. Default is "TIME" (modification date). otherwise "CONTENT" (MD5, slow)'],
-    ['-R, --no-recursively', 'Excludes sub direcories'],
+    ['-R, --no-recursively', 'Excludes sub directories'],
     ['-P, --no-omit-empdir', 'Copies empty directories'],
     ['-L, --no-omit-symlink', 'Copies symbolic links'],
     ['-M, --matched-reg <expression>', 'Matched files RegExp'],
@@ -93,7 +93,7 @@ cli.addProgram({
  *   -F, --file-name <name> A JSON file name. (default: "settings.json")
  *   -E, --encoding <name>  The JSON file encoding. (default: "utf-8")
  *   -N, --prop-name <name> A property name of the schema object. (default: "dirBackUpperSchema")
- *   -L, --logger <val>     <level>/<transportaion>. e.g. "warn/popup".  (default: "info/console")
+ *   -L, --logger <val>     <level>/<transportation>. e.g. "warn/popup".  (default: "info/console")
  *   -R, --dry-run          No execute. Outputs the string of command. (default: false)
  *   -h, --help             Output usage information
  * @function schemaBackup
@@ -102,13 +102,13 @@ cli.addProgram({
 cli.addProgram({
   command: 'schemaBackup <taskName> [overwriteKey:val...]',
   description: 'The command to back up directories defined with a schema JSON',
-  version: '1.0.0',
+  version: '2.1.0',
   options: [
     ['-D, --dir-path <path>', 'The path name where the schema JSON is located. <Directory Path> or "cwd", "portable", "userProfile". Default: "cmd" is "%CD%\\.wsh"'],
     ['-F, --file-name <name>', 'A JSON file name.', 'settings.json'],
     ['-E, --encoding <name>', 'The JSON file encoding.', CD.ado.charset.utf8],
     ['-N, --prop-name <name>', 'A property name of the schema object.', 'dirBackUpperSchema'],
-    ['-L, --logger <val>', '<level>/<transportaion>. e.g. "warn/popup". ', 'info/console'],
+    ['-L, --logger <val>', '<level>/<transportation>. e.g. "warn/popup". ', 'info/console'],
     ['-R, --dry-run', 'No execute. Outputs the string of command.']
   ],
   action: function (taskName, overwrites, opt) {

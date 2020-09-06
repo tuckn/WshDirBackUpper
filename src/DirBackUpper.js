@@ -55,7 +55,7 @@
    * var dirbkup = Wsh.DirBackUpper; // Shorthand
    *
    * var srcDir = 'C:\\Users';
-   * var destDir = 'D:\\BackUp\\Users\\${yyyy-MM}';
+   * var destDir = 'D:\\BackUp\\Users\\#{yyyy-MM}';
    *
    * dirbkup.backupDirUsingLog(srcDir, destDir, {
    *   sync: 'MIRROR',
@@ -232,14 +232,14 @@
   // dirbkup.backupDirUsingSchema {{{
   /**
    * @typedef {object} typeSchemaBackUpper
-   * @property {string} description
-   * @property {object} components
+   * @property {string} [description]
+   * @property {object} [components]
    * @property {...typeSchemaBackUpperTask} tasks
    */
 
   /**
    * @typedef {object} typeSchemaBackUpperTask
-   * @property {string} description
+   * @property {string} [description] - The task description.
    * @property {boolean} [available=true] - If specifying false, Skips the task.
    * @property {string} srcDir - The source directory path to back up.
    * @property {string} destDir - The destination directory path.
