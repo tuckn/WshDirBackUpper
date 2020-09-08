@@ -41,12 +41,12 @@ Write your backing up schema on the JSON file, for example,
     "tasks": {
       "userAppData": {
         "srcDir": "C:\\Users\\Default\\AppData",
-        "destDir": "\\\\MyNas\\BackUp\\User\\AppData",
+        "destDir": "\\\\MyNas\\BackUp\\User\\AppData"
       },
       "appLog": {
         "srcDir": "D:\\logs\\csv",
-        "destDir": "\\\\MyNas\\BackUp\\csvLogs",
-      },
+        "destDir": "\\\\MyNas\\BackUp\\csvLogs"
+      }
     }
   }
 }
@@ -59,17 +59,17 @@ The defined variable can be used as `${valName}` in `tasks`.
 {
   "dirBackUpperSchema": {
     "components": {
-      "dest": "\\\\MyNas\\BackUp",
+      "dest": "\\\\MyNas\\BackUp"
     },
     "tasks": {
       "userAppData": {
         "srcDir": "C:\\Users\\Default\\AppData",
-        "destDir": "${dest}\\User\\AppData",
+        "destDir": "${dest}\\User\\AppData"
       },
       "appLog": {
         "srcDir": "D:\\logs\\csv",
-        "destDir": "${dest}\\csvLogs",
-      },
+        "destDir": "${dest}\\csvLogs"
+      }
     }
   }
 }
@@ -83,12 +83,12 @@ You can also use a date code literal to define `srcDir` and `destDir`.
     "tasks": {
       "appLog:current": {
         "srcDir": "C:\\logs\\csv",
-        "destDir": "D:\\BackUp\\#{yyyy}\\#{MM}",
+        "destDir": "D:\\BackUp\\#{yyyy}\\#{MM}"
       },
       "appLog:lastMonth": {
         "srcDir": "D:\\BackUp\\#{yyyy\\[MM-1]}",
-        "destDir": "\\MyNas\\CsvLogs\\#{yyyy\\[MM-1]}",
-      },
+        "destDir": "\\MyNas\\CsvLogs\\#{yyyy\\[MM-1]}"
+      }
     }
   }
 }
