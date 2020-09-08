@@ -33,7 +33,7 @@ D:\WshDirBackUpper\
 The JSON default path to load is _%CD%\.wsh\\settings.json_.
 See _.\\.wsh\\settings.json_ as example.
 
-Write your backing up schema on the JSON file, for example,
+Write your backing up schema in the JSON file, for example,
 
 ```json
 {
@@ -96,7 +96,7 @@ You can also use a date code literal to define `srcDir` and `destDir`.
 
 See [WshUtil: parseDateLiteral](https://docs.tuckn.net/WshUtil/Wsh.Util.html#.parseDateLiteral) for the literal.
 
-And can also use backing up Options.
+And can also use backing up options.
 
 ```json
   "dirBackUpperSchema": {
@@ -125,7 +125,7 @@ And can also use backing up Options.
   }
 ```
 
-See [WshDirBackUpper: backupDirUsingLog](https://docs.tuckn.net/WshDirBackUpper/Wsh.DirBackUpper.html#.backupDirUsingLog) for the options.
+See [WshDirBackUpper: typeSchemaBackUpperTask](https://docs.tuckn.net/WshDirBackUpper/global.html#typeSchemaBackUpperTask) for the options.
 
 ### Run with WSH
 

@@ -43,8 +43,8 @@
     },
     "meta": {
       "title": "WshDirBackUpper",
-      "description": "The WSH (Windows Script Host) CLI that mirror directories according to the schema defined in a JSON file.",
-      "keyword": "Windows, CLI, WSH, WSF, JScript, VBScript, backup, mirror, command, settings, json, preferences"
+      "description": "The WSH (Windows Script Host) CLI that updates or mirrors directories according to the schema defined in a JSON file.",
+      "keyword": "Windows, CLI, WSH, WSF, JScript, VBScript, backup, mirror, command, json, settings, schema, preferences"
     },
     "search": true,
     "collapse": false,
