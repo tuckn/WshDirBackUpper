@@ -1,7 +1,7 @@
 {
   "name": "@tuckn/WshDirBackUpper",
   "description": "The WSH (Windows Script Host) CLI that mirror directories according to the schema defined in a JSON file.",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "author": "Tuckn <tuckn333+github@gmail.com>",
   "private": false,
   "license": "MIT",

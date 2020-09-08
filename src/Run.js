@@ -102,7 +102,7 @@ cli.addProgram({
 cli.addProgram({
   command: 'schemaBackup <taskName> [overwriteKey:val...]',
   description: 'The command to back up directories defined with a schema JSON',
-  version: '2.1.0',
+  version: '2.1.1',
   options: [
     ['-D, --dir-path <path>', 'The path name where the schema JSON is located. <Directory Path> or "cwd", "portable", "userProfile". Default: "cmd" is "%CD%\\.wsh"'],
     ['-F, --file-name <name>', 'A JSON file name.', 'settings.json'],
@@ -116,7 +116,7 @@ cli.addProgram({
     if (isSolidArray(overwrites)) {
       overwrites.forEach(function (setStr) {
         var strs = setStr.split(':');
-        if (strs.length > 1) overwritesObj[strs[0]] = strs[1];
+        if (strs.length > 1) overwritesObj[strs[0]] = strs.slice(1).join(':');
       });
     }
 
