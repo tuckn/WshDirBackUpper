@@ -129,7 +129,6 @@ cli.addProgram({
     var retVal = dirbkup.backupDirUsingSchema(schema, taskName, {
       overwrites: overwritesObj,
       logger: opt.logger,
-      showsResult: opt.hasResult,
       isDryRun: opt.dryRun
     });
 

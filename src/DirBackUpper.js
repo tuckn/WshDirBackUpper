@@ -145,7 +145,7 @@
       matchedRegExp: matchedRegExp,
       ignoredRegExp: ignoredRegExp
     });
-    // console.dir(srcFileNames); // debug
+		lggr.debug(srcFileNames);
 
     var srcNum = srcFileNames.length;
     lggr.info('Found ' + srcNum + ' files/directories in src');
@@ -166,6 +166,8 @@
       lggr.info('destDir is not existing');
     } // }}}
 
+		lggr.debug(destFileNames);
+
     // Compare differences of file and copy {{{
     lggr.info('Comparing a difference of file ' + comparison);
 
@@ -177,6 +179,8 @@
 
       var srcPath = path.join(srcDirPath, srcFileName);
       var destPath = path.join(destDirPath, srcFileName);
+      lggr.debug('srcPath: ' + srcPath);
+      lggr.debug('destPath: ' + destPath);
 
       try {
         if (fs.statSync(srcPath).isDirectory()) {
@@ -186,18 +190,21 @@
 
         if (!includes(destFileNames, srcFileName, 'i')) {
           lggr.info('Copied ' + logHeader + ' (New file)');
+					return;
           return copyFunc(srcPath, destPath);
         }
 
         if (/^time$/i.test(comparison)) {
           if (fse.isTheSameFile(srcPath, destPath, 'date')) return;
           lggr.info('Copied ' + logHeader + ' (Modified date are different)');
+					return;
           return copyFunc(srcPath, destPath);
         }
 
         if (/^content$/i.test(comparison)) {
           if (fse.isTheSameFile(srcPath, destPath, 'MD5')) return;
           lggr.info('Copied ' + logHeader + ' (MD5 values are different)');
+					return;
           return copyFunc(srcPath, destPath);
         }
 
@@ -209,7 +216,7 @@
               + '  copy "' + srcPath + '" to "' + destPath);
         }
 
-        lggr.error(logHeader + ' -> Error occured while trying to copy "' + srcPath + '" to "' + destPath + '". ' + e.toParsed());
+        lggr.error(logHeader + ' -> Error occured while trying to copy "' + srcPath + '" to "' + destPath + '". ' + insp(e));
       }
     }); // }}}
 
