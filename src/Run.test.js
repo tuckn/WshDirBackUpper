@@ -18,15 +18,15 @@ var child_process = Wsh.ChildProcess;
 var includes = util.includes;
 var parseTmp = util.parseTemplateLiteral;
 var parseDate = util.parseDateLiteral;
-var srr = os.surroundPath;
+var srrd = os.surroundCmdArg;
 var CSCRIPT = os.exefiles.cscript;
 var execSync = child_process.execSync;
 
 var testRun;
 if (includes(process.execArgv, '//job:test:dist:Run')) {
-  testRun = srr(CSCRIPT) + ' ' + srr(path.join(__dirname, 'dist', 'Run.wsf')) + ' //nologo';
+  testRun = srrd(CSCRIPT) + ' ' + srrd(path.join(__dirname, 'dist', 'Run.wsf')) + ' //nologo';
 } else {
-  testRun = srr(CSCRIPT) + ' ' + srr(__filename) + ' //nologo //job:test:src:Run';
+  testRun = srrd(CSCRIPT) + ' ' + srrd(__filename) + ' //nologo //job:test:src:Run';
 }
 
 describe('Run', function () {
@@ -54,7 +54,7 @@ describe('Run', function () {
     var srcDir = path.join(process.cwd(), 'WshModules', 'WshJest');
     var destDir = 'D:\\BackUp\\Users\\#{yyyy-[MM - 2]}';
     var destDirParsed = parseDate('D:\\BackUp\\Users\\#{yyyy-[MM - 2]}');
-    var args = ['backup', srr(srcDir), srr(destDir), '--dry-run'];
+    var args = ['backup', srrd(srcDir), srrd(destDir), '--dry-run'];
     var retObj = execSync(testRun + ' ' + args.join(' '));
     // console.dir(retObj);
     expect(retObj.error).toBeFalsy();
@@ -86,7 +86,7 @@ describe('Run', function () {
     var destDir = 'D:\\BackUp\\Users\\#{yyyy-[MM - 2]}';
     var destDirParsed = parseDate('D:\\BackUp\\Users\\#{yyyy-[MM - 2]}');
 
-    var args = ['backup', srr(srcDir), srr(destDir),
+    var args = ['backup', srrd(srcDir), srrd(destDir),
       '--sync-method MIRROR',
       '--comparison CONTENT',
       '--no-recursively',
