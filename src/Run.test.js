@@ -32,15 +32,18 @@ if (includes(process.execArgv, '//job:test:dist:Run')) {
 describe('Run', function () {
   var testName;
 
+  // Backup
+
   testName = 'backup_help';
   test(testName, function () {
     var args = ['backup', '-h'];
-    var retObj = execSync(testRun + ' ' + args.join(' '));
-    // console.dir(retObj);
-    expect(retObj.error).toBeFalsy();
-    expect(retObj.stderr).toBe('');
+    var rtn = execSync(testRun + ' ' + args.join(' '));
 
-    var expC = expect(retObj.stdout).toContain; // Shorthand
+    // Checking the executing stdout
+    expect(rtn.error).toBeFalsy();
+    expect(rtn.stderr).toBe('');
+
+    var expC = expect(rtn.stdout).toContain; // Shorthand
     expC('Usage: backup <srcDir> <destDir> [options]');
     expC('The command to back up a directory');
     expC('Options:');
@@ -53,15 +56,18 @@ describe('Run', function () {
   test(testName, function () {
     var srcDir = path.join(process.cwd(), 'WshModules', 'WshJest');
     var destDir = 'D:\\BackUp\\Users\\#{yyyy-[MM - 2]}';
-    var destDirParsed = parseDate('D:\\BackUp\\Users\\#{yyyy-[MM - 2]}');
-    var args = ['backup', srrd(srcDir), srrd(destDir), '--dry-run'];
-    var retObj = execSync(testRun + ' ' + args.join(' '));
-    // console.dir(retObj);
-    expect(retObj.error).toBeFalsy();
-    expect(retObj.stderr).toBe('');
+    var destDirParsed = parseDate(destDir);
 
-    var expC = expect(retObj.stdout).toContain; // Shorthand
-    expC('Start the function dirbkup.backupDirUsingLog');
+    // Executing
+    var args = ['backup', srrd(srcDir), srrd(destDir), '--dry-run'];
+    var rtn = execSync(testRun + ' ' + args.join(' '));
+
+    // Checking the executing stdout
+    expect(rtn.error).toBeFalsy();
+    expect(rtn.stderr).toBe('');
+
+    var expC = expect(rtn.stdout).toContain; // Shorthand
+    expC('Start the function dirBkup.backupDir');
     expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
     expC('destDir: "' + destDir + '" -> "' + destDirParsed + '"');
     expC('syncMethod: UPDATE');
@@ -77,15 +83,16 @@ describe('Run', function () {
     expC('destDir is not existing');
     expC('Comparing a difference of file TIME');
     // ...
-    expC('Finished the function dirbkup.backupDirUsingLog');
+    expC('Finished the function dirBkup.backupDir');
   });
 
   testName = 'backup_Op1_dryRun';
   test(testName, function () {
     var srcDir = path.join(process.cwd(), 'WshModules', 'WshJest');
     var destDir = 'D:\\BackUp\\Users\\#{yyyy-[MM - 2]}';
-    var destDirParsed = parseDate('D:\\BackUp\\Users\\#{yyyy-[MM - 2]}');
+    var destDirParsed = parseDate(destDir);
 
+    // Executing
     var args = ['backup', srrd(srcDir), srrd(destDir),
       '--sync-method MIRROR',
       '--comparison CONTENT',
@@ -97,13 +104,14 @@ describe('Run', function () {
       '--no-ignore-err',
       '--dry-run'
     ];
-    var retObj = execSync(testRun + ' ' + args.join(' '));
-    // console.dir(retObj);
-    expect(retObj.error).toBeFalsy();
-    expect(retObj.stderr).toBe('');
+    var rtn = execSync(testRun + ' ' + args.join(' '));
 
-    var expC = expect(retObj.stdout).toContain; // Shorthand
-    expC('Start the function dirbkup.backupDirUsingLog');
+    // Checking the executing stdout
+    expect(rtn.error).toBeFalsy();
+    expect(rtn.stderr).toBe('');
+
+    var expC = expect(rtn.stdout).toContain; // Shorthand
+    expC('Start the function dirBkup.backupDir');
     expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
     expC('destDir: "' + destDir + '" -> "' + destDirParsed + '"');
     expC('syncMethod: MIRROR');
@@ -119,18 +127,118 @@ describe('Run', function () {
     expC('destDir is not existing');
     expC('Comparing a difference of file CONTENT');
     // ...
-    expC('Finished the function dirbkup.backupDirUsingLog');
+    expC('Finished the function dirBkup.backupDir');
   });
+
+  // Archive
+
+  testName = 'archive_help';
+  test(testName, function () {
+    // Executing
+    var args = ['archive', '-h'];
+    var rtn = execSync(testRun + ' ' + args.join(' '));
+
+    // Checking the executing stdout
+    expect(rtn.error).toBeFalsy();
+    expect(rtn.stderr).toBe('');
+
+    var expC = expect(rtn.stdout).toContain; // Shorthand
+    expC('Usage: archive <srcDir> <dest> [options]');
+    expC('The command to archive a directory');
+    expC('Options:');
+    expC('  -A, --archive-type <type>      The archiving type, "ZIP" (default) or "RAR"');
+    expC('  -F, --no-forEach-subDir        Compresses each sub directory in the specified source directory.');
+    // ...
+  });
+
+  testName = 'archive_DefOp_dryRun';
+  test(testName, function () {
+    var srcDir = path.join(process.cwd(), 'WshModules', 'WshJest');
+    var destDir = 'D:\\archive\\Users\\#{yyyy-[MM - 2]}';
+    var destDirParsed = parseDate(destDir);
+
+    // Executing
+    var args = ['archive', srrd(srcDir), srrd(destDir), '--dry-run'];
+    var rtn = execSync(testRun + ' ' + args.join(' '));
+
+    // Checking the executing stdout
+    expect(rtn.error).toBeFalsy();
+    expect(rtn.stderr).toBe('');
+
+    var expC = expect(rtn.stdout).toContain; // Shorthand
+
+    expC('Start the function dirBkup.archiveDir');
+    expC('srcDir: ' + srrd(srcDir) + ' -> ' + srrd(srcDir));
+    expC('dest: ' + srrd(destDir) + ' -> ' + srrd(destDirParsed));
+    expC('throws: false');
+    expC('isDryRun: true');
+    expC('archiveType: ZIP');
+    expC('forEachSubDir: true');
+    expC('includesEmptyDir: false');
+    expC('includesSymlink: false');
+    expC('matchedRegExp: null');
+    expC('ignoredRegExp: null');
+    // ...
+    expC('Finished the function dirBkup.archiveDir');
+  });
+
+  testName = 'archive_Op1_dryRun';
+  test(testName, function () {
+    var srcDir = path.join(process.cwd(), 'WshModules', 'WshJest');
+    var dest = 'D:\\archive\\Users\\#{yyyy-[MM - 2]}';
+    var destDirParsed = parseDate(dest);
+
+    // Executing
+    var args = ['archive', srrd(srcDir), srrd(dest),
+      '--archive-type RAR',
+      '--date-code yyyyMMdd_hhmmss',
+      '--password "This is mY&p@ss ^_<"',
+      '--compressLv 0',
+      '--no-forEach-subDir',
+      '--no-omit-empdir',
+      // '--matched-reg "^[^.].+$"',
+      // '--ignored-reg "modules$"',
+      '--no-ignore-err',
+      '--dry-run'
+    ];
+    var rtn = execSync(testRun + ' ' + args.join(' '));
+
+    // Checking the executing stdout
+    expect(rtn.error).toBeFalsy();
+    expect(rtn.stderr).toBe('');
+
+    var expC = expect(rtn.stdout).toContain; // Shorthand
+    var expNC = expect(rtn.stdout).not.toContain;
+
+    expC('Start the function dirBkup.archiveDir');
+    expC('srcDir: ' + srrd(srcDir) + ' -> ' + srrd(srcDir));
+    expC('dest: ' + srrd(dest) + ' -> ' + srrd(destDirParsed));
+    expC('throws: true');
+    expC('isDryRun: true');
+    expC('archiveType: RAR');
+    expC('forEachSubDir: false');
+
+    expNC('includesEmptyDir: ');
+    expNC('includesSymlink: ');
+    expNC('matchedRegExp: ');
+    expNC('ignoredRegExp: ');
+    // ...
+    expC('Finished the function dirBkup.archiveDir');
+  });
+
+  // Schema
 
   testName = 'schemaBackup_help_noArg';
   test(testName, function () {
+    // Executing
     var args = ['schemaBackup'];
-    var retObj = execSync(testRun + ' ' + args.join(' '));
-    // console.dir(retObj);
-    expect(retObj.error).toBeTruthy();
-    expect(retObj.stdout).toBe(''); // Stdout
+    var rtn = execSync(testRun + ' ' + args.join(' '));
 
-    var expC = expect(retObj.stderr).toContain; // Shorthand
+    // Checking the executing stdout
+    expect(rtn.error).toBeTruthy();
+    expect(rtn.stdout).toBe(''); // Stdout
+
+    var expC = expect(rtn.stderr).toContain; // Shorthand
     expC('Usage: schemaBackup <taskName> [overwriteKey:val...] [options]');
     expC('The command to back up directories defined with a schema JSON');
     expC('Options:');
@@ -141,13 +249,15 @@ describe('Run', function () {
 
   testName = 'schemaBackup_help';
   test(testName, function () {
+    // Executing
     var args = ['schemaBackup', '-h'];
-    var retObj = execSync(testRun + ' ' + args.join(' '));
-    // console.dir(retObj);
-    expect(retObj.error).toBeFalsy();
-    expect(retObj.stderr).toBe('');
+    var rtn = execSync(testRun + ' ' + args.join(' '));
 
-    var expC = expect(retObj.stdout).toContain; // Shorthand
+    // Checking the executing stdout
+    expect(rtn.error).toBeFalsy();
+    expect(rtn.stderr).toBe('');
+
+    var expC = expect(rtn.stdout).toContain; // Shorthand
     expC('Usage: schemaBackup <taskName> [overwriteKey:val...] [options]');
     expC('The command to back up directories defined with a schema JSON');
     expC('Options:');
@@ -168,225 +278,297 @@ describe('Run', function () {
           description: 'Example task with options',
           srcDir: 'C:\\Users\\Default\\AppData',
           destDir: '${dest}\\AppData\\#{yyyy}\\#{MM-dd}',
-          ignoredRegExp: [
-            'Windows\\\\WebCache',
-            'Packages\\\\.*Cache\\\\',
-            '\\.mui$',
-            '\\.settingcontent-ms$'
-          ]
+          method: 'UPDATE',
+          options: {
+            comparison: 'TIME',
+            ignoredRegExp: [
+              'Windows\\\\WebCache',
+              'Packages\\\\.*Cache\\\\',
+              '\\.mui$',
+              '\\.settingcontent-ms$'
+            ]
+          }
+        },
+        'userAppData:zip': {
+          srcDir: 'C:\\Users\\Default\\AppData',
+          destDir: '${dest}\\AppData\\archives',
+          method: 'ARCHIVE',
+          options: {
+            archiveType: 'ZIP',
+            exe7z: '${exe7z}',
+            dateCode: 'yyyy-MM-dd',
+            compressLv: 9,
+            password: 'This is mY&p@ss ^_<',
+            ignoredRegExp: ['\\.git.*']
+          }
         },
         'appLog:current': {
           srcDir: 'D:\\AppLogs\\#{yyyy}\\#{MM}',
           destDir: '${dest}\\AppLogs\\#{yyyy}\\#{MM}',
-          syncMethod: 'MIRROR',
-          comparison: 'CONTENT',
-          isRecursive: false,
-          copiesEmpDir: true,
-          includesSymlink: true,
-          matchedRegExp: '\\.csv$'
+          method: 'MIRROR',
+          options: {
+            comparison: 'CONTENT',
+            isRecursive: false,
+            copiesEmpDir: true,
+            includesSymlink: true,
+            matchedRegExp: '\\.csv$'
+          }
         },
         'appLog:lastMonth': {
           available: false,
           srcDir: '${anyVal1}:\\AppLogs\\#{yyyy\\[MM-1]}',
           destDir: '${dest}\\AppLogs\\#{yyyy\\[MM-1]}',
-          syncMethod: 'MIRROR',
-          comparison: 'TIME',
-          matchedRegExp: '\\.csv$'
+          method: 'MIRROR',
+          options: {
+            comparison: 'TIME',
+            matchedRegExp: '\\.csv$'
+          }
         }
       }
     }
   };
 
-  testName = 'schemaBackup_dryRun';
+  testName = 'schemaBackup_all_dryRun';
   test(testName, function () {
-    var tmpDir = os.makeTmpPath() + '_' + testName;
+    // Creating a temporary directory and the JSON schema file
+    var tmpDir = os.makeTmpPath('_' + testName);
     var wshDir = path.join(tmpDir, '.wsh');
-    var schemaJson = path.join(wshDir, 'settings.json');
-
     fse.ensureDirSync(wshDir);
+
+    var schemaJson = path.join(wshDir, 'settings.json');
     fse.writeJsonSync(schemaJson, schema);
 
-    var args = ['schemaBackup', '*', '--dir-path', wshDir, '--dry-run'];
-    var retObj = execSync(testRun + ' ' + args.join(' '));
-    // console.dir(retObj);
-    // expect(retObj.error).toBeFalsy();
-    // expect(retObj.stderr).toBe('');
+    // Executing
+    var asterisk = '*';
+    var args = ['schemaBackup', asterisk, '--dir-path', wshDir, '--dry-run'];
+    var rtn = execSync(testRun + ' ' + args.join(' '));
 
+    // Checking the executing log
     var scm = schema.dirBackUpperSchema;
     var tasks = scm.tasks;
-    var expC = expect(retObj.stdout).toContain; // Shorthand
-    expC('Start function dirbkup.backupDirUsingSchema');
-    expC('taskName: "*"');
-    expC('matched tasks: ' + Object.keys(tasks).length);
-    expC('dry-run [dirbkup.backupDirUsingSchema]:');
-    expC('Start the function dirbkup.backupDirUsingLog');
+    var expC = expect(rtn.stdout).toContain; // Shorthand
 
-    (function () {
-      var params = scm.tasks.userAppData;
-      var srcDir = parseDate(parseTmp(params.srcDir, scm.components));
-      var destDir = parseDate(parseTmp(params.destDir, scm.components));
-      expC('Start the task: userAppData');
-      expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
-      expC('destDir: "' + destDir + '" -> "' + destDir + '"');
-      expC('syncMethod: UPDATE');
-      expC('comparison: TIME');
-      expC('isRecursive: true');
-      expC('copiesEmpDir: false');
-      expC('includesSymlink: false');
-      expC('matchedRegExp: null');
-      expC('ignoredRegExp: (' + params.ignoredRegExp.join('|') + ')');
-      expC('throws: false');
-      expC('Reading srcDir recursively...');
-      expC('Comparing a difference of file TIME');
-    })();
+    expC('Start the function dirBkup.backupDirUsingSchema');
+    expC('isDryRun: true');
+    expC('taskName: ' + asterisk);
+    expC('matched tasks number: ' + Object.keys(tasks).length);
+    expC('Start the function dirBkup.backupDir');
 
-    (function () {
-      var params = scm.tasks['appLog:current'];
-      var srcDir = parseDate(parseTmp(params.srcDir, scm.components));
-      var destDir = parseDate(parseTmp(params.destDir, scm.components));
-      expC('Start the task: appLog:current');
-      expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
-      expC('destDir: "' + destDir + '" -> "' + destDir + '"');
-      expC('syncMethod: MIRROR');
-      expC('comparison: CONTENT');
-      expC('isRecursive: false');
-      expC('copiesEmpDir: true');
-      expC('includesSymlink: true');
-      expC('matchedRegExp: ' + params.matchedRegExp);
-      expC('ignoredRegExp: null');
-      expC('throws: false');
-      expC('Reading srcDir...');
-    })();
+    // Checking a task executed or not
+    Object.keys(scm.tasks).forEach(function (taskName) {
+      expC('Start the task: ' + taskName);
 
-    (function () {
-      expC('Start the task: appLog:lastMonth');
-      expC('available: false => Skip this task');
-    })();
+      if (scm.tasks[taskName].available === false) {
+        expC('available: false => Skip the task: ' + taskName);
+      } else {
+        expC('Finished the task: ' + taskName);
+      }
+    });
 
-    expC('Finished function dirbkup.backupDirUsingSchema');
+    expC('Finished the function dirBkup.backupDir');
+    expC('Finished the function dirBkup.backupDirUsingSchema');
 
-    // Cleans
+    // Cleaning
     fse.removeSync(tmpDir);
     expect(fs.existsSync(tmpDir)).toBe(false);
   });
 
-  testName = 'schemaBackup_dryRun_task';
+  testName = 'schemaBackup_task1_dryRun';
   test(testName, function () {
-    var tmpDir = os.makeTmpPath() + '_' + testName;
+    // Creating a temporary directory and the JSON schema file
+    var tmpDir = os.makeTmpPath('_' + testName);
     var wshDir = path.join(tmpDir, '.wsh');
-    var schemaJson = path.join(wshDir, 'settings.json');
-
     fse.ensureDirSync(wshDir);
+
+    var schemaJson = path.join(wshDir, 'settings.json');
     fse.writeJsonSync(schemaJson, schema);
 
-    var args = ['schemaBackup', 'appLog:*', '--dir-path', wshDir, '--dry-run'];
-    var retObj = execSync(testRun + ' ' + args.join(' '));
-    // console.dir(retObj);
-    // expect(retObj.error).toBeFalsy();
-    // expect(retObj.stderr).toBe('');
+    // Executing
+    var taskName = 'userAppData';
+    var args = ['schemaBackup', taskName, '--dir-path', wshDir, '--dry-run'];
+    var rtn = execSync(testRun + ' ' + args.join(' '));
 
+    // Checking the stdout
     var scm = schema.dirBackUpperSchema;
-    var tasks = scm.tasks;
-    var expC = expect(retObj.stdout).toContain; // Shorthand
-    expC('Start function dirbkup.backupDirUsingSchema');
-    expC('taskName: "appLog:*"');
-    expC('matched tasks: 2');
-    expC('dry-run [dirbkup.backupDirUsingSchema]:');
-    expC('Start the function dirbkup.backupDirUsingLog');
+    var expC = expect(rtn.stdout).toContain; // Shorthand
 
-    (function () {
-      expect(retObj.stdout).not.toContain('Start the task: userAppData');
-    })();
+    expC('Start the function dirBkup.backupDirUsingSchema');
+    expC('isDryRun: true');
+    expC('throws: false');
+    expC('taskName: ' + taskName);
+    expC('matched tasks number: 1');
 
-    (function () {
-      var params = tasks['appLog:current'];
-      var srcDir = parseDate(parseTmp(params.srcDir, scm.components));
-      var destDir = parseDate(parseTmp(params.destDir, scm.components));
-      expC('Start the task: appLog:current');
-      expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
-      expC('destDir: "' + destDir + '" -> "' + destDir + '"');
-      expC('syncMethod: MIRROR');
-      expC('comparison: CONTENT');
-      expC('isRecursive: false');
-      expC('copiesEmpDir: true');
-      expC('includesSymlink: true');
-      expC('matchedRegExp: ' + params.matchedRegExp);
-      expC('ignoredRegExp: null');
-      expC('throws: false');
-      expC('Reading srcDir...');
-    })();
+    var task = scm.tasks[taskName];
+    var srcDir = parseDate(parseTmp(task.srcDir, scm.components));
+    var destDir = parseDate(parseTmp(task.destDir, scm.components));
 
-    (function () {
-      expC('Start the task: appLog:lastMonth');
-      expC('available: false => Skip this task');
-    })();
+    expC('Start the task: ' + taskName);
+    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
+    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('method: ' + task.method);
 
-    expC('Finished function dirbkup.backupDirUsingSchema');
+    expC('Start the function dirBkup.backupDir');
+    expC('comparison: ' + task.options.comparison);
+    expC('isRecursive: true');
+    expC('copiesEmpDir: false');
+    expC('includesSymlink: false');
+    expC('matchedRegExp: null');
+    expC('ignoredRegExp: (' + task.options.ignoredRegExp.join('|') + ')');
+    expC('Reading srcDir recursively...');
+    expC('Comparing a difference of file ' + task.options.comparison);
+    expC('Finished the function dirBkup.backupDir');
 
-    // Cleans
+    expC('Finished the task: ' + taskName);
+    expC('Finished the function dirBkup.backupDirUsingSchema');
+
+    // Cleaning
     fse.removeSync(tmpDir);
     expect(fs.existsSync(tmpDir)).toBe(false);
   });
 
-  testName = 'schemaBackup_dryRun_defJson';
+  testName = 'schemaBackup_task2_dryRun';
   test(testName, function () {
-    var args = ['schemaBackup', '*', '--dry-run'];
-    var retObj = execSync(testRun + ' ' + args.join(' '));
-    // console.dir(retObj);
-    // expect(retObj.error).toBeFalsy();
-    // expect(retObj.stderr).toBe('');
+    // Creating a temporary directory and the JSON schema file
+    var tmpDir = os.makeTmpPath('_' + testName);
+    var wshDir = path.join(tmpDir, '.wsh');
+    fse.ensureDirSync(wshDir);
 
+    var schemaJson = path.join(wshDir, 'settings.json');
+    fse.writeJsonSync(schemaJson, schema);
+
+    // Executing
+    var taskName = 'userAppData*';
+    var args = ['schemaBackup', taskName, '--dir-path', wshDir, '--dry-run'];
+    var rtn = execSync(testRun + ' ' + args.join(' '));
+
+    // Checking the executing log
     var scm = schema.dirBackUpperSchema;
-    var tasks = scm.tasks;
-    var expC = expect(retObj.stdout).toContain; // Shorthand
-    expC('Start function dirbkup.backupDirUsingSchema');
-    expC('taskName: "*"');
-    expC('matched tasks: ' + Object.keys(tasks).length);
-    expC('dry-run [dirbkup.backupDirUsingSchema]:');
-    expC('Start the function dirbkup.backupDirUsingLog');
+    var expC = expect(rtn.stdout).toContain; // Shorthand
 
-    (function () {
-      var params = scm.tasks.userAppData;
-      var srcDir = parseDate(parseTmp(params.srcDir, scm.components));
-      var destDir = parseDate(parseTmp(params.destDir, scm.components));
-      expC('Start the task: userAppData');
-      expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
-      expC('destDir: "' + destDir + '" -> "' + destDir + '"');
-      expC('syncMethod: UPDATE');
-      expC('comparison: TIME');
-      expC('isRecursive: true');
-      expC('copiesEmpDir: false');
-      expC('includesSymlink: false');
-      expC('matchedRegExp: null');
-      expC('ignoredRegExp: (' + params.ignoredRegExp.join('|') + ')');
-      expC('throws: false');
-      expC('Reading srcDir recursively...');
-      expC('Comparing a difference of file TIME');
-    })();
+    expC('Start the function dirBkup.backupDirUsingSchema');
+    expC('isDryRun: true');
+    expC('throws: false');
+    expC('taskName: ' + taskName);
+    expC('matched tasks number: 2');
 
-    (function () {
-      var params = scm.tasks['appLog:current'];
-      var srcDir = parseDate(parseTmp(params.srcDir, scm.components));
-      var destDir = parseDate(parseTmp(params.destDir, scm.components));
-      expC('Start the task: appLog:current');
-      expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
-      expC('destDir: "' + destDir + '" -> "' + destDir + '"');
-      expC('syncMethod: MIRROR');
-      expC('comparison: CONTENT');
-      expC('isRecursive: false');
-      expC('copiesEmpDir: true');
-      expC('includesSymlink: true');
-      expC('matchedRegExp: ' + params.matchedRegExp);
-      expC('ignoredRegExp: null');
-      expC('throws: false');
-      expC('Reading srcDir...');
-    })();
+    // userAppData
+    expC('Start the task: userAppData');
+    expC('Start the function dirBkup.backupDir');
+    expC('Finished the function dirBkup.backupDir');
+    expC('Finished the task: userAppData');
 
-    (function () {
-      expC('Start the task: appLog:lastMonth');
-      expC('available: false => Skip this task');
-    })();
+    // userAppData:zip
+    var task = scm.tasks['userAppData:zip'];
+    var srcDir = parseDate(parseTmp(task.srcDir, scm.components));
+    var destDir = parseDate(parseTmp(task.destDir, scm.components));
 
-    expC('Finished function dirbkup.backupDirUsingSchema');
+    expC('Start the task: userAppData:zip');
+    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
+    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('method: ' + task.method);
+
+    expC('Start the function dirBkup.archiveDir');
+    expC('archiveType: ' + task.options.archiveType);
+    expC('forEachSubDir: true');
+    expC('includesEmptyDir: false');
+    expC('includesSymlink: false');
+    expC('matchedRegExp: null');
+    expC('ignoredRegExp: (' + task.options.ignoredRegExp + ')');
+    expC('Finished the function dirBkup.archiveDir');
+
+    expC('Finished the task: userAppData:zip');
+    expC('Finished the function dirBkup.backupDirUsingSchema');
+
+    // Cleaning
+    fse.removeSync(tmpDir);
+    expect(fs.existsSync(tmpDir)).toBe(false);
+  });
+
+  testName = 'schemaBackup_task3_dryRun';
+  test(testName, function () {
+    // Creating a temporary directory and the JSON schema file
+    var tmpDir = os.makeTmpPath('_' + testName);
+    var wshDir = path.join(tmpDir, '.wsh');
+    fse.ensureDirSync(wshDir);
+
+    var schemaJson = path.join(wshDir, 'settings.json');
+    fse.writeJsonSync(schemaJson, schema);
+
+    // Executing
+    var taskName = 'appLog:current';
+    var args = ['schemaBackup', taskName, '--dir-path', wshDir, '--dry-run'];
+    var rtn = execSync(testRun + ' ' + args.join(' '));
+
+    // Checking the executing log
+    var scm = schema.dirBackUpperSchema;
+    var expC = expect(rtn.stdout).toContain; // Shorthand
+
+    expC('Start the function dirBkup.backupDirUsingSchema');
+    expC('isDryRun: true');
+    expC('throws: false');
+    expC('taskName: ' + taskName);
+    expC('matched tasks number: 1');
+
+    var task = scm.tasks[taskName];
+    var srcDir = parseDate(parseTmp(task.srcDir, scm.components));
+    var destDir = parseDate(parseTmp(task.destDir, scm.components));
+
+    expC('Start the task: ' + taskName);
+    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
+    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('method: ' + task.method);
+
+    expC('Start the function dirBkup.backupDir');
+    expC('comparison: ' + task.options.comparison);
+    expC('isRecursive: ' + task.options.isRecursive);
+    expC('copiesEmpDir: ' + task.options.copiesEmpDir);
+    expC('includesSymlink: ' + task.options.includesSymlink);
+    expC('matchedRegExp: ' + task.options.matchedRegExp);
+    expC('ignoredRegExp: null');
+    expC('Reading srcDir...');
+    expect(rtn.stderr).toContain('Error: [] Error: ENOENT: no such file or directory');
+
+    expC('Finished the function dirBkup.backupDirUsingSchema');
+    expC('Finished the task: ' + taskName);
+    expC('Finished the function dirBkup.backupDirUsingSchema');
+
+    // Cleaning
+    fse.removeSync(tmpDir);
+    expect(fs.existsSync(tmpDir)).toBe(false);
+  });
+
+  testName = 'schemaBackup_portable_dryRun';
+  test(testName, function () {
+    // Executing
+    var asterisk = '*';
+    var args = ['schemaBackup', asterisk, '--dry-run'];
+    var rtn = execSync(testRun + ' ' + args.join(' '));
+
+    // Checking the executing stdout
+    // Reading the settings
+    var conf = new Wsh.ConfigStore(null, { dirPath: 'portable' });
+    var schema = conf.get('dirBackUpperSchema');
+    var tasks = schema.tasks;
+    var expC = expect(rtn.stdout).toContain; // Shorthand
+
+    expC('Start the function dirBkup.backupDirUsingSchema');
+    expC('isDryRun: true');
+    expC('taskName: ' + asterisk);
+    expC('matched tasks number: ' + Object.keys(tasks).length);
+    expC('Start the function dirBkup.backupDir');
+
+    // Checking a task executed or not
+    Object.keys(schema.tasks).forEach(function (taskName) {
+      expC('Start the task: ' + taskName);
+
+      if (schema.tasks[taskName].available === false) {
+        expC('available: false => Skip the task: ' + taskName);
+      } else {
+        expC('Finished the task: ' + taskName);
+      }
+    });
+
+    expC('Finished the function dirBkup.backupDir');
+    expC('Finished the function dirBkup.backupDirUsingSchema');
   });
 });

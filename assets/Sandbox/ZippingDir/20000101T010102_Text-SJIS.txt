@@ -1,0 +1,7 @@
+/**
+ * @fileoverview テスト用サンプルファイル
+ * @fileencoding Shift-JIS[dos]
+ * @links https://github.com/tuckn/WshCore
+ * @author Tuckn
+ * @email tuckn333+github@gmail.com
+ */

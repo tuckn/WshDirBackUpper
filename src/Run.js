@@ -6,8 +6,7 @@ var util = Wsh.Util;
 var CD = Wsh.Constants;
 var cli = Wsh.Commander;
 var ConfigStore = Wsh.ConfigStore;
-var net = Wsh.Net;
-var dirbkup = Wsh.DirBackUpper; // Shorthand
+var dirBkup = Wsh.DirBackUpper; // Shorthand
 
 var isSolidArray = util.isSolidArray;
 
@@ -45,7 +44,7 @@ var isSolidArray = util.isSolidArray;
 cli.addProgram({
   command: 'backup <srcDir> <destDir>',
   description: 'The command to back up a directory',
-  version: '2.1.0',
+  version: '2.2.0',
   options: [
     ['-S, --sync-method <method>', 'Synchronization method. "UPDATE" (default) or "MIRROR"'],
     ['-C, --comparison <method>', 'Comparison method. Default is "TIME" (modification date). otherwise "CONTENT" (MD5, slow)'],
@@ -59,7 +58,7 @@ cli.addProgram({
     ['-R, --dry-run', 'No execute. Outputs the string of command.']
   ],
   action: function (srcDir, destDir, opt) {
-    var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+    var rtn = dirBkup.backupDir(srcDir, destDir, {
       syncMethod: opt.syncMethod,
       comparison: opt.comparison,
       isRecursive: opt.recursively,
@@ -72,7 +71,74 @@ cli.addProgram({
       isDryRun: opt.dryRun
     });
 
-    if (opt.dryRun) console.log(retVal);
+    if (opt.dryRun) console.log(rtn);
+
+    process.exit(CD.runOk);
+  }
+}); // }}}
+
+// archive {{{
+/**
+ * Compresses the directory into archive file (ZIP or RAR).
+ *
+ * @example
+ * Usage: archive <srcDir> <dest> [options]
+ *
+ * The command to archive a directory
+ *
+ * Options:
+ *   -V, --version                  Output the version number
+ *   -A, --archive-type <type>  The archiving type, "ZIP" (default) or "RAR"
+ *   -D, --date-code <expression>   If specify "yyyy-MM-dd", The dest name is <name>_yyyy-MM-dd.zip
+ *   -C, --password <string>        Encrypt the archive file. File names will be not encrypted in Zip.
+ *   -O, --compressLv <Lv>          Compression level. ZIP (1,3,5,7,9), RAR (0-store...3-default...5-maximal).
+ *   -F, --no-forEach-subDir        Compresses each sub directory in the specified source directory.
+ *   -P, --no-omit-empdir           Compresses empty directories
+ *   -L, --no-omit-symlink          Compresses symbolic links
+ *   -M, --matched-reg <expression> Matched RegExp only for the root directories and files in the source
+ *   -I, --ignored-reg <expression> Ignored RegExp only for the root directories and files in the source
+ *   -E, --no-ignore-err            Throw Error
+ *   -L, --logger <val>             <level>/<transportation> (e.g. "warn/popup").  (default: "info/console")
+ *   -R, --dry-run                  No execute. Outputs the string of command. (default: false)
+ *   -h, --help                     Output usage information
+ * @function archive
+ * @memberof CLI
+ */
+cli.addProgram({
+  command: 'archive <srcDir> <dest>',
+  description: 'The command to archive a directory',
+  version: '2.2.0',
+  options: [
+    ['-A, --archive-type <type>', 'The archiving type, "ZIP" (default) or "RAR"', 'ZIP'],
+    ['-F, --no-forEach-subDir', 'Compresses each sub directory in the specified source directory.'],
+    ['-P, --no-omit-empdir', 'Compresses empty directories'],
+    ['-D, --date-code <expression>', 'If specify "yyyy-MM-dd", The dest name is <name>_yyyy-MM-dd.zip'],
+    ['-C, --password <string>', 'Encrypt the archive file. File names will be not encrypted in Zip.'],
+    ['-O, --compressLv <Lv>', 'Compression level. ZIP (1,3,5,7,9), RAR (0-store...3-default...5-maximal)'],
+    ['-L, --no-omit-symlink', 'Compresses symbolic links'],
+    ['-M, --matched-reg <expression>', 'Matched files RegExp'],
+    ['-I, --ignored-reg <expression>', 'Ignored files RegExp'],
+    ['-E, --no-ignore-err', 'Throw Error'],
+    ['-L, --logger <val>', '<level>/<transportation> (e.g. "warn/popup"). ', 'info/console'],
+    ['-R, --dry-run', 'No execute. Outputs the string of command.']
+  ],
+  action: function (srcDir, dest, opt) {
+    var rtns = dirBkup.archiveDir(srcDir, dest, {
+      archiveType: opt.archiveType,
+      forEachSubDir: opt.forEachSubDir,
+      dateCode: opt.dateCode,
+      password: opt.password,
+      compressLv: opt.compressLv,
+      copiesEmpDir: !opt.omitEmpdir,
+      includesSymlink: !opt.omitSymlink,
+      matchedRegExp: opt.matchedReg,
+      ignoredRegExp: opt.ignoredReg,
+      throws: !opt.ignoreErr,
+      logger: opt.logger,
+      isDryRun: opt.dryRun
+    });
+
+    if (opt.dryRun) console.dir(rtns);
 
     process.exit(CD.runOk);
   }
@@ -102,7 +168,7 @@ cli.addProgram({
 cli.addProgram({
   command: 'schemaBackup <taskName> [overwriteKey:val...]',
   description: 'The command to back up directories defined with a schema JSON',
-  version: '2.1.1',
+  version: '2.2.0',
   options: [
     ['-D, --dir-path <path>', 'The path name where the schema JSON is located. <Directory Path> or "cwd", "portable", "userProfile". Default: "cmd" is "%CD%\\.wsh"'],
     ['-F, --file-name <name>', 'A JSON file name.', 'settings.json'],
@@ -126,13 +192,13 @@ cli.addProgram({
     });
     var schema = conf.get(opt.propName);
 
-    var retVal = dirbkup.backupDirUsingSchema(schema, taskName, {
+    var rtn = dirBkup.backupDirUsingSchema(schema, taskName, {
       overwrites: overwritesObj,
       logger: opt.logger,
       isDryRun: opt.dryRun
     });
 
-    if (opt.dryRun) console.log(retVal);
+    if (opt.dryRun) console.log(rtn);
     process.exit(CD.runOk);
   }
 }); // }}}

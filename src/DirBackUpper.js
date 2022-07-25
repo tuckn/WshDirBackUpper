@@ -15,8 +15,10 @@
   // Shorthands
   var util = Wsh.Util;
   var path = Wsh.Path;
+  var os = Wsh.OS;
   var fs = Wsh.FileSystem;
   var fse = Wsh.FileSystemExtra;
+  var zlib = Wsh.ZLIB;
   var logger = Wsh.Logger;
 
   var objAdd = Object.assign;
@@ -27,10 +29,13 @@
   var hasContent = util.hasContent;
   var includes = util.includes;
   var isArray = util.isArray;
+  var isEmpty = util.isEmpty;
   var isSolidString = util.isSolidString;
   var isPlainObject = util.isPlainObject;
+  var isSameMeaning = util.isSameMeaning;
+  var srrd = os.surroundCmdArg;
 
-  var dirbkup = Wsh.DirBackUpper; // Shorthand
+  var dirBkup = Wsh.DirBackUpper; // Shorthand
 
   /** @constant {string} */
   var MODULE_TITLE = 'WshDirBackUpper/DirBackUpper.js';
@@ -47,23 +52,23 @@
     util.throwValueError(valName, MODULE_TITLE, functionName, errVal);
   };
 
-  // dirbkup.backupDirUsingLog {{{
+  // dirBkup.backupDir {{{
   /**
    * Backs up the directory.
    *
    * @example
-   * var dirbkup = Wsh.DirBackUpper; // Shorthand
+   * var dirBkup = Wsh.DirBackUpper; // Shorthand
    *
    * var srcDir = 'C:\\Users';
-   * var destDir = 'D:\\BackUp\\Users\\#{yyyy-MM}';
+   * var destDir = 'D:\\BackUp\\Users\\#{yyyy}\\#{MM - 1}';
    *
-   * dirbkup.backupDirUsingLog(srcDir, destDir, {
+   * dirBkup.backupDir(srcDir, destDir, {
    *   sync: 'MIRROR',
    *   comparison: 'CONTENT',
    *   ignoredRegExp: 'tmp$',
    *   logger: 'warn/winEvent' // See https://github.com/tuckn/WshLogger
    * });
-   * @function backupDirUsingLog
+   * @function backupDir
    * @memberof Wsh.DirBackUpper
    * @param {string} srcDir - The source directory path to back up.
    * @param {string} destDir - The destination directory path.
@@ -81,62 +86,72 @@
    * @param {boolean} [options.isDryRun=false] - No execute, returns the string of command.
    * @returns {void}
    */
-  dirbkup.backupDirUsingLog = function (srcDir, destDir, options) {
-    var FN = 'dirbkup.backupDirUsingLog';
+  dirBkup.backupDir = function (srcDir, destDir, options) {
+    var FN = 'dirBkup.backupDir';
     var loggerObj = obtain(options, 'logger', {});
     var lggr = logger.create(loggerObj);
     lggr.info('Start the function ' + FN);
 
+    lggr.debug('srcDir: ' + insp(srcDir));
+    lggr.debug('dest: ' + insp(destDir));
+    lggr.debug('options: ' + insp(options));
+
+    // Setting the source and destination directory
     if (!isSolidString(srcDir)) throwErrNonStr(FN, srcDir);
     if (!isSolidString(destDir)) throwErrNonStr(FN, destDir);
 
-    // Sets parameters {{{
     var srcDirPath = path.resolve(srcDir);
-    var destDirPath = parseDate(path.resolve(destDir));
+    lggr.info('srcDir: "' + srcDir + '" -> "' + srcDirPath + '"');
 
+    var destDirPath = parseDate(path.resolve(destDir));
+    lggr.info('destDir: "' + destDir + '" -> "' + destDirPath + '"');
+
+    // Setting parameters
     var syncMethod = obtain(options, 'syncMethod', 'UPDATE');
     if (!/^(update|mirror)$/i.test(syncMethod)) {
       throwValErr('options.update', FN, syncMethod);
     }
+    lggr.info('syncMethod: ' + syncMethod);
 
     var comparison = obtain(options, 'comparison', 'TIME');
+    lggr.info('comparison: ' + comparison);
 
-    var isRecursive = obtain(options, 'isRecursive', true);
-    var readFn = isRecursive ? fse.readdirSyncRecursively : fs.readdirSync;
-
-    var copiesEmpDir = obtain(options, 'copiesEmpDir', false);
-    var includesSymlink = obtain(options, 'includesSymlink', false);
     var throws = obtain(options, 'throws', false);
+    lggr.info('throws: ' + String(throws));
 
     var isDryRun = obtain(options, 'isDryRun', false);
+    lggr.info('isDryRun: ' + String(isDryRun));
+
     var copyDummy = function () { return; };
     var copyFunc = isDryRun ? copyDummy : fse.copySync;
     var removeDummy = function () { return; };
     var removeFunc = isDryRun ? removeDummy : fse.removeSync;
 
+    // Setting filtering sub directories options
+    var copiesEmpDir = obtain(options, 'copiesEmpDir', false);
+    lggr.info('copiesEmpDir: ' + String(copiesEmpDir));
+
+    var includesSymlink = obtain(options, 'includesSymlink', false);
+    lggr.info('includesSymlink: ' + String(includesSymlink));
+
     var matchedRegExp = obtain(options, 'matchedRegExp', null);
     if (matchedRegExp && isArray(matchedRegExp) && matchedRegExp.length > 0) {
       matchedRegExp = '(' + matchedRegExp.join('|') + ')';
     }
+    lggr.info('matchedRegExp: ' + matchedRegExp);
 
     var ignoredRegExp = obtain(options, 'ignoredRegExp', null);
     if (ignoredRegExp && isArray(ignoredRegExp) && ignoredRegExp.length > 0) {
       ignoredRegExp = '(' + ignoredRegExp.join('|') + ')';
     }
-
-    lggr.info('srcDir: "' + srcDir + '" -> "' + srcDirPath + '"');
-    lggr.info('destDir: "' + destDir + '" -> "' + destDirPath + '"');
-    lggr.info('syncMethod: ' + syncMethod);
-    lggr.info('comparison: ' + comparison);
-    lggr.info('isRecursive: ' + String(isRecursive));
-    lggr.info('copiesEmpDir: ' + String(copiesEmpDir));
-    lggr.info('includesSymlink: ' + String(includesSymlink));
-    lggr.info('matchedRegExp: ' + matchedRegExp);
     lggr.info('ignoredRegExp: ' + ignoredRegExp);
-    lggr.info('throws: ' + String(throws));
-    // }}}
 
-    // Gets files lists {{{
+    var isRecursive = obtain(options, 'isRecursive', true);
+    lggr.info('isRecursive: ' + String(isRecursive));
+
+    var readFn = isRecursive ? fse.readdirSyncRecursively : fs.readdirSync;
+
+    // Getting files lists
     lggr.info('Reading srcDir' + (isRecursive ? ' recursively...' : '...'));
 
     var srcFileNames = readFn(srcDirPath, {
@@ -145,10 +160,10 @@
       matchedRegExp: matchedRegExp,
       ignoredRegExp: ignoredRegExp
     });
-    lggr.debug(srcFileNames);
+    lggr.debug('srcFileNames: ' + insp(srcFileNames));
 
     var srcNum = srcFileNames.length;
-    lggr.info('Found ' + srcNum + ' files/directories in src');
+    lggr.info('Found ' + srcNum + ' files and directories in src');
 
     var destFileNames = [];
     if (fs.existsSync(destDirPath)) {
@@ -161,11 +176,10 @@
         ignoredRegExp: ignoredRegExp
       });
 
-      lggr.info('Found ' + destFileNames.length + ' files/directories in dest');
+      lggr.info('Found ' + destFileNames.length + ' files and directories in dest');
     } else {
       lggr.info('destDir is not existing');
-    } // }}}
-
+    }
     lggr.debug(destFileNames);
 
     // Compare differences of file and copy {{{
@@ -233,12 +247,194 @@
     return;
   }; // }}}
 
-  // dirbkup.backupDirUsingSchema {{{
+  // dirBkup.archiveDir {{{
+  /**
+   * Compresses the directory into archive file (ZIP or RAR).
+   *
+   * @example
+   * var dirBkup = Wsh.DirBackUpper; // Shorthand
+   *
+   * var srcDir = 'C:\\Users';
+   * var dest = 'D:\\BackUp\\Users\\#{yyyy}\\#{MM - 1}';
+   *
+   * dirBkup.archiveDir(srcDir, dest, {
+   *   ignoredRegExp: '\\.git.*',
+   *   dateCode: 'yyyy-MM-dd_hhmmss',
+   *   compressLv: 9,
+   *   password: 'This is mY&p@ss ^_<',
+   *   exe7z: exe7z
+   *   logger: 'warn/winEvent' // See https://github.com/tuckn/WshLogger
+   * });
+   * @function archiveDir
+   * @memberof Wsh.DirBackUpper
+   * @param {string} srcDir - The source directory path to back up.
+   * @param {string} dest - The destination directory path.
+   * @param {typeDeflateZipOption|typeDeflateRarOption} [options] - Optional parameters. See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption|Wsh.ZLIB.typeDeflateZipOption} and {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption|Wsh.ZLIB.typeDeflateRarOption}.
+   * @param {string} [options.archiveType='ZIP'] - The archiving method, 'ZIP' (default) or 'RAR'
+   * @param {boolean} [options.forEachSubDir=true] - Compresses each sub directory in the specified source directory.
+   * @param {boolean} [options.includesEmptyDir=false] - Compresses empty directories.
+   * @param {boolean} [options.includesSymlink=false] - Compresses symbolic links.
+   * @param {string|Array} [options.matchedRegExp] - When forEachSubDir option is true, matched RegExp only for the root directories and files in the source. e.g. "^[^.].+$"
+   * @param {string|Array} [options.ignoredRegExp] - When forEachSubDir option is true, ignored RegExp only for the root directories and files in the source. e.g. "\\.git.*"
+   * @param {boolean} [options.throws=false] - Throws a error.
+   * @param {(Logger|string|object)} [options.logger] - The Logger instance or create options. See {@link https://docs.tuckn.net/WshLogger/Wsh.Logger.html#.create|Wsh.Logger.create}.
+   * @param {boolean} [options.transportsLog=true] - Outputs Wsh.Logger logs after connecting. See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateResult|Wsh.ZLIB.typeDeflateResult}.
+   * @returns {typeDeflateResult|typeDeflateResult[]|string} - @see typeDeflateResult. If options.isDryRun is true, returns string.
+   */
+  dirBkup.archiveDir = function (srcDir, dest, options) {
+    var FN = 'dirBkup.archiveDir';
+    var loggerObj = obtain(options, 'logger', {});
+    var lggr = logger.create(loggerObj);
+    lggr.info('Start the function ' + FN);
+
+    lggr.debug('srcDir: ' + insp(srcDir));
+    lggr.debug('dest: ' + insp(dest));
+    lggr.debug('options: ' + insp(options));
+
+    var errMes = '\n'
+      + '  at ' + FN + ' (' + MODULE_TITLE + ').\n'
+      + '  srcDir: ' + insp(srcDir) + ',\n'
+      + '  dest: ' + insp(dest) + ',\n'
+      + '  options: ' + insp(options);
+
+    // Setting the source directory and destination path
+    if (!isSolidString(srcDir)) throwErrNonStr(FN, srcDir);
+    if (!isSolidString(dest)) throwErrNonStr(FN, dest);
+
+    var srcDirPath = path.resolve(srcDir);
+    lggr.info('srcDir: ' + srrd(srcDir) + ' -> ' + srrd(srcDirPath));
+
+    var destPath = parseDate(path.resolve(dest));
+    lggr.info('dest: ' + srrd(dest) + ' -> ' + srrd(destPath));
+
+    // Setting parameters
+    var throws = obtain(options, 'throws', false);
+    lggr.info('throws: ' + String(throws));
+
+    var isDryRun = obtain(options, 'isDryRun', false);
+    lggr.info('isDryRun: ' + String(isDryRun));
+
+    var archiveType = obtain(options, 'archiveType', 'ZIP');
+    lggr.info('archiveType: ' + String(archiveType));
+
+    var archiveFunc = zlib.deflateSync;
+    if (isSameMeaning(archiveType, 'RAR')) {
+      archiveFunc = zlib.deflateSyncIntoRar;
+    }
+
+    var forEachSubDir = obtain(options, 'forEachSubDir', true);
+    lggr.info('forEachSubDir: ' + String(forEachSubDir));
+
+    var rtn;
+
+    if (!forEachSubDir) {
+      try {
+        rtn = archiveFunc(srcDirPath, destPath, options);
+        lggr.info('Finished to archive process with exitCode: ' + rtn.exitCode);
+        lggr.info('archivedPath: ' + rtn.archivedPath);
+      } catch (e) {
+        if (throws) throw new Error(insp(e) + errMes);
+        lggr.error(insp(e));
+      }
+    } else {
+      // Setting filtering sub directories options
+      var includesEmptyDir = obtain(options, 'includesEmptyDir', false);
+      lggr.info('includesEmptyDir: ' + String(includesEmptyDir));
+
+      var includesSymlink = obtain(options, 'includesSymlink', false);
+      lggr.info('includesSymlink: ' + String(includesSymlink));
+
+      var matchedRegExp = obtain(options, 'matchedRegExp', null);
+      if (matchedRegExp && isArray(matchedRegExp) && matchedRegExp.length > 0) {
+        matchedRegExp = '(' + matchedRegExp.join('|') + ')';
+      }
+      lggr.info('matchedRegExp: ' + matchedRegExp);
+
+      var ignoredRegExp = obtain(options, 'ignoredRegExp', null);
+      if (ignoredRegExp && isArray(ignoredRegExp) && ignoredRegExp.length > 0) {
+        ignoredRegExp = '(' + ignoredRegExp.join('|') + ')';
+      }
+      lggr.info('ignoredRegExp: ' + ignoredRegExp);
+
+      // Getting archived file
+      var srcFileNames = fs.readdirSync(srcDirPath, {
+        withFileTypes: false,
+        excludesSymlink: !includesSymlink,
+        matchedRegExp: matchedRegExp,
+        ignoredRegExp: ignoredRegExp
+      });
+      lggr.debug('srcFileNames: ' + insp(srcFileNames));
+
+      var srcNum = srcFileNames.length;
+      lggr.info('Found ' + srcNum + ' files and directories in src');
+
+      // Compresses each sub directory and makes root files list
+      rtn = [];
+      var rootFiles = [];
+
+      srcFileNames.forEach(function (srcFileName, i) {
+        if (lggr.transportation === 'CONSOLE') WScript.StdOut.Write('.');
+
+        var logHeader = '[' + (i + 1) + '/' + srcNum + '] ' + srcFileName;
+        lggr.info(logHeader);
+
+        var srcPath = path.join(srcDirPath, srcFileName);
+        lggr.info('srcPath: ' + srcPath);
+
+        if (fs.statSync(srcPath).isDirectory()) {
+          if (!includesEmptyDir) {
+            var srcItems = fs.readdirSync(srcPath, { withFileTypes: false });
+
+            if (isEmpty(srcItems)) {
+              lggr.info('Skipped due to empty directory. ' + srcPath);
+              return;
+            }
+          }
+
+          try {
+            var rtnCmpDir = archiveFunc(srcPath, destPath, options);
+            lggr.info('Finished to archive process with exitCode: ' + rtnCmpDir.exitCode);
+            lggr.info('archivedPath: ' + rtnCmpDir.archivedPath);
+            rtn.push(rtnCmpDir);
+          } catch (e) {
+            if (throws) throw new Error(insp(e) + errMes);
+            lggr.error(insp(e));
+          }
+          return;
+        }
+
+        if (fs.statSync(srcPath).isFile()) {
+          rootFiles.push(srcPath);
+        }
+      });
+
+      // Compresses root files
+      if (!isEmpty(rootFiles)) {
+        try {
+          var rtnCmpFs = archiveFunc(rootFiles, destPath, options);
+          lggr.info('Finished to archive process with exitCode: ' + rtnCmpFs.exitCode);
+          lggr.info('archivedPath: ' + rtnCmpFs.archivedPath);
+          rtn.push(rtnCmpFs);
+        } catch (e) {
+          if (throws) throw new Error(insp(e) + errMes);
+          lggr.error(insp(e));
+        }
+      }
+    }
+
+    lggr.info('Finished the function ' + FN);
+    var transportsLog = obtain(options, 'transportsLog', true);
+    if (transportsLog) lggr.transport();
+
+    return rtn;
+  }; // }}}
+
+  // dirBkup.backupDirUsingSchema {{{
   /**
    * @typedef {object} typeSchemaBackUpper
    * @property {string} [description]
    * @property {object} [components]
-   * @property {...typeSchemaBackUpperTask} tasks
+   * @property {...(typeSchemaBackUpperTask|typeSchemaArchiverTask)} tasks
    */
 
   /**
@@ -258,14 +454,30 @@
    */
 
   /**
+   * @typedef {typeDeflateZipOption|typeDeflateRarOption} typeSchemaArchiverTask - See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption|Wsh.ZLIB.typeDeflateZipOption} and {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption|Wsh.ZLIB.typeDeflateRarOption}.
+   * @property {string} [description] - The task description.
+   * @property {boolean} [available=true] - If specifying false, Skips the task.
+   * @property {string} srcDir - The source directory path to archive.
+   * @property {string} dest - The destination path.
+   * @property {string} archiveType - The archiving method, 'ZIP' or 'RAR'
+   * @property {string} {boolean} [forEachSubDir=true] - Compresses each sub directory in the specified source directory.
+   * @property {boolean} [includesEmptyDir=false] - Compresses empty directories.
+   * @property {boolean} [includesSymlink] - Copies symbolic link.
+   * @property {string|Array} [matchedRegExp] - e.g. "^[^.].+$"
+   * @property {string|Array} [ignoredRegExp] - e.g. "\\.git.*"
+   * @property {boolean} [throws=false] - Throws a error.
+   */
+
+  /**
    * Backs up the directories.
    *
    * @example
-   * var dirbkup = Wsh.DirBackUpper; // Shorthand
+   * var dirBkup = Wsh.DirBackUpper; // Shorthand
    * var schema = {
    *   description: 'Example Schema WshDirBackUpper',
    *   components: {
    *     dest: '\\\\MyNas\\BackUp',
+   *     exe7z: 'D:\\My Apps\\7-Zip\\7z.exe',
    *     anyVal1: null
    *   },
    *   tasks: {
@@ -273,33 +485,53 @@
    *       description: 'Example task with options',
    *       srcDir: 'C:\\Users\\Default\\AppData',
    *       destDir: '${dest}\\AppData\\#{yyyy}\\#{MM-dd}',
-   *       comparison: 'CONTENT',
-   *       ignoredRegExp: [
-   *         'Windows\\\\WebCache',
-   *         'Packages\\\\.*Cache\\\\',
-   *         '\\.mui$',
-   *         '\\.settingcontent-ms$'
-   *       ]
+   *       method: 'UPDATE',
+   *       options: {
+   *         comparison: 'TIME',
+   *         ignoredRegExp: [
+   *           'Windows\\\\WebCache',
+   *           'Packages\\\\.*Cache\\\\',
+   *           '\\.mui$',
+   *           '\\.settingcontent-ms$'
+   *         ]
+   *       }
+   *     },
+   *     'userAppData:zip': {
+   *       srcDir: 'C:\\Users\\Default\\AppData',
+   *       destDir: '${dest}\\AppData\\archives',
+   *       method: 'ARCHIVE',
+   *       options: {
+   *         archiveType: 'ZIP',
+   *         exe7z: '${exe7z}',
+   *         dateCode: 'yyyy-MM-dd',
+   *         compressLv: 9,
+   *         password: 'This is mY&p@ss ^_<',
+   *         ignoredRegExp: ['\\.git.*']
+   *       }
    *     },
    *     'appLog:current': {
    *       srcDir: 'D:\\AppLogs\\#{yyyy}\\#{MM}',
    *       destDir: '${dest}\\AppLogs\\#{yyyy}\\#{MM}',
-   *       syncMethod: 'UPDATE',
-   *       comparison: 'TIME',
-   *       matchedRegExp: '\\.csv$'
+   *       method: 'MIRROR',
+   *       options: {
+   *         comparison: 'CONTENT',
+   *         matchedRegExp: '\\.csv$'
+   *       }
    *     },
    *     'appLog:lastMonth': {
    *       available: false,
    *       srcDir: '${anyVal1}:\\AppLogs\\#{yyyy\\[MM-1]}',
    *       destDir: '${dest}\\AppLogs\\#{yyyy\\[MM-1]}',
-   *       syncMethod: 'MIRROR',
-   *       comparison: 'TIME',
-   *       matchedRegExp: '\\.csv$'
+   *       method: 'MIRROR',
+   *       options: {
+   *         comparison: 'TIME',
+   *         matchedRegExp: '\\.csv$'
+   *       }
    *     }
    *   }
    * };
    *
-   * dirbkup.backupDirUsingSchema(schema, 'work:*', {
+   * dirBkup.backupDirUsingSchema(schema, 'work:*', {
    *   logger: 'info/console',
    *   overwrites: { anyVal1: 'E' }
    * });
@@ -314,88 +546,124 @@
    * @param {boolean} [options.isDryRun=false] - No execute, returns the string of command.
    * @returns {void}
    */
-  dirbkup.backupDirUsingSchema = function (schema, taskName, options) {
-    var FN = 'dirbkup.backupDirUsingSchema';
+  dirBkup.backupDirUsingSchema = function (schema, taskName, options) {
+    var FN = 'dirBkup.backupDirUsingSchema';
+    var loggerObj = obtain(options, 'logger', {});
+    var lggr = logger.create(loggerObj);
+    lggr.info('Start the function ' + FN);
+
+    lggr.debug('schema: ' + insp(schema));
+    lggr.debug('taskName: ' + insp(taskName));
+    lggr.debug('options: ' + insp(options));
+
+    var transportsLog = obtain(options, 'transportsLog', true);
+    lggr.info('transportsLog: ' + String(transportsLog));
+
+    var isDryRun = obtain(options, 'isDryRun', false);
+    lggr.info('isDryRun: ' + String(isDryRun));
+
+    var throws = obtain(options, 'throws', false);
+    lggr.info('throws: ' + String(throws));
+
+    // Filtering execution tasks
     if (!isPlainObject(schema)) throwErrNonObject(FN, schema);
     if (!isSolidString(taskName)) throwErrNonStr(FN, taskName);
 
-    var loggerObj = obtain(options, 'logger', {});
-    var lggr = logger.create(loggerObj);
-    lggr.info('Start function ' + FN);
-    lggr.info('taskName: "' + taskName + '"');
+    lggr.info('taskName: ' + taskName);
 
     var tasks = schema.tasks; // Shorthand
     var taskNames = Object.keys(tasks);
+
     var regNameMatcher;
+    var baseRegStr = '^' + taskName + '$';
     if (includes(taskName, '*')) {
-      regNameMatcher = new RegExp(taskName.replace(/\*/g, '.*'));
+      regNameMatcher = new RegExp(baseRegStr.replace(/\*/g, '.*'));
     } else {
-      regNameMatcher = new RegExp(taskName);
+      regNameMatcher = new RegExp(baseRegStr);
     }
-    var filteredNames = taskNames.filter(function (taskName) {
+
+    var execTasks = taskNames.filter(function (taskName) {
       return regNameMatcher.test(taskName);
     });
-    lggr.info('matched tasks: ' + filteredNames.length);
+    lggr.info('matched tasks number: ' + execTasks.length);
 
-    var vals = schema.components; // Shorthand
+    // Getting component values in the schema
+    var cmpVals = schema.components; // Shorthand
 
-    // Set option values in keys storing null.
+    // Setting component values in keys storing null.
     if (hasContent(options.overwrites)) {
-      Object.keys(vals).forEach(function (key) {
-        if (vals[key] !== null) return;
+      Object.keys(cmpVals).forEach(function (key) {
+        if (cmpVals[key] !== null) return;
 
         Object.keys(options.overwrites).some(function (writeKey) {
           if (key === writeKey) {
-            vals[key] = options.overwrites[writeKey];
+            cmpVals[key] = options.overwrites[writeKey];
             return true;
           }
         });
       });
     }
 
-    var isDryRun = obtain(options, 'isDryRun', false);
-    if (isDryRun) lggr.info('dry-run [' + FN + ']:');
+    // Executing tasks
+    execTasks.forEach(function (taskName) {
+      var tsk = tasks[taskName]; // Shorthand
 
-    filteredNames.forEach(function (taskName) {
       lggr.info('Start the task: ' + taskName);
 
-      if (tasks[taskName].available === false) {
-        lggr.info('available: false => Skip this task');
+      // Skipping non available task
+      if (tsk.available === false) {
+        lggr.info('available: false => Skip the task: ' + taskName);
         return;
       }
 
-      var srcDir = parseDate(parseTmp(tasks[taskName].srcDir || '', vals));
-      var destDir = parseDate(parseTmp(tasks[taskName].destDir || '', vals));
-      var syncMethod = parseTmp(tasks[taskName].syncMethod || '', vals);
-      var comparison = parseTmp(tasks[taskName].comparison || '', vals);
-      var isRecursive = obtain(tasks[taskName], 'isRecursive', null);
-      var copiesEmpDir = obtain(tasks[taskName], 'copiesEmpDir', null);
-      var includesSymlink = obtain(tasks[taskName], 'includesSymlink', null);
-      var matchedRegExp = obtain(tasks[taskName], 'matchedRegExp', null);
-      var ignoredRegExp = obtain(tasks[taskName], 'ignoredRegExp', null);
+      // Setting parameters
 
-      try {
-        dirbkup.backupDirUsingLog(srcDir, destDir,
-          objAdd({}, options, {
-            syncMethod: syncMethod,
-            comparison: comparison,
-            isRecursive: isRecursive,
-            copiesEmpDir: copiesEmpDir,
-            includesSymlink: includesSymlink,
-            matchedRegExp: matchedRegExp,
-            ignoredRegExp: ignoredRegExp,
-            logger: lggr,
-            transportsLog: false,
-            throws: false
-          })
-        );
-      } catch (e) { // It does not stop with an error.
-        lggr.error(insp(e));
+      // Parsing source and dest path
+      var srcDir = parseDate(parseTmp(tsk.srcDir || '', cmpVals));
+      lggr.info('source: ' + srrd(tsk.srcDir) + ' -> ' + srrd(srcDir));
+
+      var dest = parseDate(parseTmp(tsk.destDir || '', cmpVals));
+      lggr.info('dest: ' + srrd(tsk.destDir) + ' -> ' + srrd(dest));
+
+      var method = obtain(tsk, 'method');
+      lggr.info('method: ' + method);
+
+      var op = objAdd(
+        // Common options
+        {
+          logger: lggr,
+          transportsLog: transportsLog,
+          isDryRun: isDryRun,
+          throws: throws
+        },
+        // The task options
+        tsk.options
+      );
+
+      if (isSameMeaning(method, 'ARCHIVE')) {
+        // Archiving
+        try {
+          dirBkup.archiveDir(srcDir, dest, op);
+        } catch (e) {
+          if (throws) throw new Error(insp(e));
+          lggr.error(insp(e));
+        }
+      } else {
+        // Copying
+        op = objAdd(op, { syncMethod: method });
+
+        try {
+          dirBkup.backupDir(srcDir, dest, op);
+        } catch (e) {
+          if (throws) throw new Error(insp(e));
+          lggr.error(insp(e));
+        }
       }
+
+      lggr.info('Finished the task: ' + taskName);
     });
 
-    lggr.info('Finished function ' + FN);
-    var transportsLog = obtain(options, 'transportsLog', true);
+    lggr.info('Finished the function ' + FN);
     if (transportsLog) lggr.transport();
 
     return;

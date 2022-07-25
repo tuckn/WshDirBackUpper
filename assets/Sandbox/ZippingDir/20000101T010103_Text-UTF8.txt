@@ -1,0 +1,7 @@
+/**
+ * @fileoverview テスト用サンプルファイル
+ * @fileencoding UTF-8[dos]
+ * @links https://github.com/tuckn/WshCore
+ * @author Tuckn
+ * @email tuckn333+github@gmail.com
+ */

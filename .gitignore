@@ -118,4 +118,5 @@ ehthumbs_vista.db
 *.ffs_db
 *.ffs_lock
 
+assets/bin/*
 docs/

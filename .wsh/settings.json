@@ -10,30 +10,51 @@
                 "description": "Example task with options",
                 "srcDir": "C:\\Users\\Default\\AppData",
                 "destDir": "${dest}\\AppData\\#{yyyy}\\#{MM-dd}",
-                "ignoredRegExp": [
-                    "Windows\\\\WebCache",
-                    "Packages\\\\.*Cache\\\\",
-                    "\\.mui$",
-                    "\\.settingcontent-ms$"
-                ]
+                "method": "UPDATE",
+                "options": {
+                    "comparison": "TIME",
+                    "ignoredRegExp": [
+                        "Windows\\\\WebCache",
+                        "Packages\\\\.*Cache\\\\",
+                        "\\.mui$",
+                        "\\.settingcontent-ms$"
+                    ]
+                }
+            },
+            "userAppData:zip": {
+                "srcDir": "C:\\Users\\Default\\AppData",
+                "destDir": "${dest}\\AppData\\archives",
+                "method": "ARCHIVE",
+                "options": {
+                    "archiveType": "ZIP",
+                    "exe7z": "${exe7z}",
+                    "dateCode": "yyyy-MM-dd",
+                    "compressLv": 9,
+                    "password": "This is mY&p@ss ^_<",
+                    "ignoredRegExp": ["\\.git.*"]
+                }
             },
             "appLog:current": {
                 "srcDir": "D:\\AppLogs\\#{yyyy}\\#{MM}",
                 "destDir": "${dest}\\AppLogs\\#{yyyy}\\#{MM}",
-                "syncMethod": "MIRROR",
-                "comparison": "CONTENT",
-                "isRecursive": false,
-                "copiesEmpDir": true,
-                "includesSymlink": true,
-                "matchedRegExp": "\\.csv$"
+                "method": "MIRROR",
+                "options":{
+                    "comparison": "CONTENT",
+                    "isRecursive": false,
+                    "copiesEmpDir": true,
+                    "includesSymlink": true,
+                    "matchedRegExp": "\\.csv$"
+                }
             },
             "appLog:lastMonth": {
                 "available": false,
                 "srcDir": "${anyVal1}:\\AppLogs\\#{yyyy\\[MM-1]}",
                 "destDir": "${dest}\\AppLogs\\#{yyyy\\[MM-1]}",
-                "syncMethod": "MIRROR",
-                "comparison": "TIME",
-                "matchedRegExp": "\\.csv$"
+                "method": "MIRROR",
+                "options":{
+                    "comparison": "TIME",
+                    "matchedRegExp": "\\.csv$"
+                }
             }
         }
     }

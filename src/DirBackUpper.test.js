@@ -1,4 +1,5 @@
 ﻿/* globals Wsh: false */
+/* globals __dirname: false */
 /* globals process: false */
 
 /* globals describe: false */
@@ -12,12 +13,13 @@ var os = Wsh.OS;
 var fs = Wsh.FileSystem;
 var fse = Wsh.FileSystemExtra;
 var logger = Wsh.Logger;
-var dirbkup = Wsh.DirBackUpper;
+var dirBkup = Wsh.DirBackUpper;
 
 var parseTmp = util.parseTemplateLiteral;
 var parseDate = util.parseDateLiteral;
 var includes = util.includes;
 var endsWith = util.endsWith;
+var srrd = os.surroundCmdArg;
 
 var noneStrVals = [true, false, undefined, null, 0, 1, NaN, Infinity, [], {}];
 var noneObjVals = [true, false, undefined, null, 0, 1, NaN, Infinity, [], ''];
@@ -120,7 +122,7 @@ describe('DirBackUpper', function () {
     // var destDir = 'D:\\BackUp\\Users\\#{yyyy-MM}';
 
     // dry-run
-    var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+    var retVal = dirBkup.backupDir(srcDir, destDir, {
       logger: lggr,
       isDryRun: true
     });
@@ -129,7 +131,7 @@ describe('DirBackUpper', function () {
     var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
     // console.log(logStr);
     var expC = expect(logStr).toContain; // Shorthand
-    expC('Start the function dirbkup.backupDirUsingLog');
+    expC('Start the function dirBkup.backupDir');
     expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
     expC('destDir: "' + destDir + '" -> "' + destDirParsed + '"');
     expC('syncMethod: UPDATE');
@@ -145,9 +147,9 @@ describe('DirBackUpper', function () {
     expC('destDir is not existing');
     expC('Comparing a difference of file TIME');
     // ...
-    expC('Finished the function dirbkup.backupDirUsingLog');
+    expC('Finished the function dirBkup.backupDir');
 
-    // Cleans
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });
@@ -165,7 +167,7 @@ describe('DirBackUpper', function () {
     var destDir = 'D:\\BackUp\\Users\\WshModules';
 
     // dry-run
-    var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+    var retVal = dirBkup.backupDir(srcDir, destDir, {
       syncMethod: 'MIRROR',
       comparison: 'CONTENT',
       isRecursive: false,
@@ -181,7 +183,7 @@ describe('DirBackUpper', function () {
     var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
     // console.log(logStr);
     var expC = expect(logStr).toContain; // Shorthand
-    expC('Start the function dirbkup.backupDirUsingLog');
+    expC('Start the function dirBkup.backupDir');
     expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
     expC('destDir: "' + destDir + '" -> "' + destDir + '"');
     expC('syncMethod: MIRROR');
@@ -196,12 +198,12 @@ describe('DirBackUpper', function () {
     expC('Found ');
     expC('destDir is not existing');
     expC('Comparing a difference of file CONTENT');
-    expC('Start the function dirbkup.backupDirUsingLog');
+    expC('Start the function dirBkup.backupDir');
     // ...
     expC('Remove none-existing files from dest');
-    expC('Finished the function dirbkup.backupDirUsingLog');
+    expC('Finished the function dirBkup.backupDir');
 
-    // Cleans
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });
@@ -219,7 +221,7 @@ describe('DirBackUpper', function () {
     (function () {
       var logFile = path.join(testDir, 'test1.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         // syncMethod: 'UPDATE',
         // comparison: 'TIME',
         // isRecursive: true,
@@ -233,7 +235,7 @@ describe('DirBackUpper', function () {
       // console.dir(srcInfo);
       // console.log(logStr);
       var expC = expect(logStr).toContain; // Shorthand
-      expC('Start the function dirbkup.backupDirUsingLog');
+      expC('Start the function dirBkup.backupDir');
       expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
       expC('destDir: "' + destDir + '" -> "' + destDir + '"');
       expC('syncMethod: UPDATE');
@@ -245,7 +247,7 @@ describe('DirBackUpper', function () {
       expC('ignoredRegExp: null');
       expC('throws: false');
       expC('Reading srcDir recursively...');
-      expC('Found ' + srcInfo.nums.all + ' files/directories in src');
+      expC('Found ' + srcInfo.nums.all + ' files and directories in src');
       expC('destDir is not existing');
       expC('Comparing a difference of file TIME');
       srcInfo.files.forEach(function (fileName) {
@@ -254,7 +256,7 @@ describe('DirBackUpper', function () {
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
     // 2. Second Back Up
@@ -266,7 +268,7 @@ describe('DirBackUpper', function () {
 
       var logFile = path.join(testDir, 'test2.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         // syncMethod: 'UPDATE',
         // comparison: 'TIME',
         // isRecursive: true,
@@ -280,7 +282,7 @@ describe('DirBackUpper', function () {
       // console.dir(srcInfo);
       // console.log(logStr);
       var expC = expect(logStr).toContain; // Shorthand
-      expC('Start the function dirbkup.backupDirUsingLog');
+      expC('Start the function dirBkup.backupDir');
       expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
       expC('destDir: "' + destDir + '" -> "' + destDir + '"');
       expC('syncMethod: UPDATE');
@@ -294,7 +296,7 @@ describe('DirBackUpper', function () {
       expC('Reading srcDir recursively...');
       expC('Found '
         + (srcInfo.dirs.length + srcInfo.files.length + 1)
-        + ' files/directories in src');
+        + ' files and directories in src');
       expC('Comparing a difference of file TIME');
       expC('"' + fileNameAdd + '" (New file)');
       srcInfo.files.forEach(function (fileName) {
@@ -303,10 +305,10 @@ describe('DirBackUpper', function () {
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
-    // Cleans
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });
@@ -324,7 +326,7 @@ describe('DirBackUpper', function () {
     (function () {
       var logFile = path.join(testDir, 'test1.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         syncMethod: 'MIRROR',
         logger: lggr
       });
@@ -333,7 +335,7 @@ describe('DirBackUpper', function () {
       var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
       var expC = expect(logStr).toContain; // Shorthand
       expC('syncMethod: MIRROR');
-      expC('Found ' + srcInfo.nums.all + ' files/directories in src');
+      expC('Found ' + srcInfo.nums.all + ' files and directories in src');
       expC('destDir is not existing');
       srcInfo.files.forEach(function (fileName) {
         expC('"' + fileName + '" (New file)');
@@ -341,14 +343,14 @@ describe('DirBackUpper', function () {
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
     // 2. Second (MIRROR)
     (function () {
       var logFile = path.join(testDir, 'test2.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         syncMethod: 'MIRROR',
         logger: lggr
       });
@@ -359,15 +361,15 @@ describe('DirBackUpper', function () {
       // console.log(logStr);
       var expC = expect(logStr).toContain; // Shorthand
       expC('syncMethod: MIRROR');
-      expC('Found ' + srcInfo.nums.all + ' files/directories in src');
-      expC('Found ' + (srcInfo.nums.all - srcInfo.nums.empDir) + ' files/directories in dest');
+      expC('Found ' + srcInfo.nums.all + ' files and directories in src');
+      expC('Found ' + (srcInfo.nums.all - srcInfo.nums.empDir) + ' files and directories in dest');
       srcInfo.files.forEach(function (fileName) {
         expect(logStr).not.toContain(fileName);
       });
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
     // 3. Third (MIRROR)
@@ -378,7 +380,7 @@ describe('DirBackUpper', function () {
 
       var logFile = path.join(testDir, 'test3.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         syncMethod: 'MIRROR',
         logger: lggr
       });
@@ -389,9 +391,9 @@ describe('DirBackUpper', function () {
       // console.log(logStr);
       var expC = expect(logStr).toContain; // Shorthand
       expC('syncMethod: MIRROR');
-      expC('Found ' + (srcInfo.nums.all - 1) + ' files/directories in src');
+      expC('Found ' + (srcInfo.nums.all - 1) + ' files and directories in src');
       expC('Reading destDir recursively...');
-      expC('Found ' + (srcInfo.nums.all - srcInfo.nums.empDir) + ' files/directories in dest');
+      expC('Found ' + (srcInfo.nums.all - srcInfo.nums.empDir) + ' files and directories in dest');
       expC('Comparing a difference of file TIME');
       expC('Remove none-existing files from dest');
       srcInfo.files.forEach(function (fileName) {
@@ -404,10 +406,10 @@ describe('DirBackUpper', function () {
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
-    // Cleans
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });
@@ -425,7 +427,7 @@ describe('DirBackUpper', function () {
     (function () {
       var logFile = path.join(testDir, 'test1.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         isRecursive: false,
         logger: lggr
       });
@@ -437,7 +439,7 @@ describe('DirBackUpper', function () {
       var expC = expect(logStr).toContain; // Shorthand
       expC('isRecursive: false');
       expC('Reading srcDir...');
-      expC('Found ' + srcInfo.nums.root + ' files/directories in src');
+      expC('Found ' + srcInfo.nums.root + ' files and directories in src');
       expC('destDir is not existing');
       srcInfo.files.forEach(function (fileName) {
         if (includes(fileName, 'fileRoot', 'i')) {
@@ -449,14 +451,14 @@ describe('DirBackUpper', function () {
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
     // 2. Second Back Up (recursive true)
     (function () {
       var logFile = path.join(testDir, 'test2.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         isRecursive: true,
         logger: lggr
       });
@@ -468,9 +470,9 @@ describe('DirBackUpper', function () {
       var expC = expect(logStr).toContain; // Shorthand
       expC('isRecursive: true');
       expC('Reading srcDir recursively...');
-      expC('Found ' + srcInfo.nums.all + ' files/directories in src');
+      expC('Found ' + srcInfo.nums.all + ' files and directories in src');
       expC('Reading destDir recursively...');
-      expC('Found ' + srcInfo.nums.rootFile + ' files/directories in dest');
+      expC('Found ' + srcInfo.nums.rootFile + ' files and directories in dest');
       srcInfo.files.forEach(function (fileName) {
         if (includes(fileName, 'fileRoot', 'i')) {
           expect(logStr).not.toContain(fileName);
@@ -481,10 +483,10 @@ describe('DirBackUpper', function () {
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
-    // Cleans
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });
@@ -502,7 +504,7 @@ describe('DirBackUpper', function () {
     (function () {
       var logFile = path.join(testDir, 'test1.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         copiesEmpDir: false,
         logger: lggr
       });
@@ -514,7 +516,7 @@ describe('DirBackUpper', function () {
       var expC = expect(logStr).toContain; // Shorthand
       expC('copiesEmpDir: false');
       expC('Reading srcDir recursively...');
-      expC('Found ' + srcInfo.nums.all + ' files/directories in src');
+      expC('Found ' + srcInfo.nums.all + ' files and directories in src');
       expC('destDir is not existing');
       srcInfo.files.forEach(function (fileName) {
         if (includes(fileName, 'DirEmp', 'i')) {
@@ -526,14 +528,14 @@ describe('DirBackUpper', function () {
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
     // 2. Second Back Up (recursive true)
     (function () {
       var logFile = path.join(testDir, 'test2.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         copiesEmpDir: true,
         logger: lggr
       });
@@ -545,9 +547,9 @@ describe('DirBackUpper', function () {
       var expC = expect(logStr).toContain; // Shorthand
       expC('copiesEmpDir: true');
       expC('Reading srcDir recursively...');
-      expC('Found ' + srcInfo.nums.all + ' files/directories in src');
+      expC('Found ' + srcInfo.nums.all + ' files and directories in src');
       expC('Reading destDir recursively...');
-      expC('Found ' + (srcInfo.nums.all - srcInfo.nums.empDir) + ' files/directories in dest');
+      expC('Found ' + (srcInfo.nums.all - srcInfo.nums.empDir) + ' files and directories in dest');
       srcInfo.files.forEach(function (fileName) {
         if (includes(fileName, 'DirEmp', 'i')) {
           expC('"' + fileName + '" (New file)');
@@ -558,10 +560,10 @@ describe('DirBackUpper', function () {
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
-    // Cleans
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });
@@ -579,7 +581,7 @@ describe('DirBackUpper', function () {
     (function () {
       var logFile = path.join(testDir, 'test1.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         includesSymlink: true,
         logger: lggr
       });
@@ -591,7 +593,7 @@ describe('DirBackUpper', function () {
       var expC = expect(logStr).toContain; // Shorthand
       expC('copiesEmpDir: false');
       expC('Reading srcDir recursively...');
-      expC('Found ' + srcInfo.nums.allCopied + ' files/directories in src');
+      expC('Found ' + srcInfo.nums.allCopied + ' files and directories in src');
       expC('destDir is not existing');
       srcInfo.files.forEach(function (fileName) {
         if (includes(fileName, 'DirEmp', 'i')) {
@@ -608,10 +610,10 @@ describe('DirBackUpper', function () {
           expC('"' + linkName + '" (New file)');
         }
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
-    // Cleans
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });
@@ -629,7 +631,7 @@ describe('DirBackUpper', function () {
     (function () {
       var logFile = path.join(testDir, 'test1.log');
       var lggr = logger.create('info/' + logFile);
-      var retVal = dirbkup.backupDirUsingLog(srcDir, destDir, {
+      var retVal = dirBkup.backupDir(srcDir, destDir, {
         matchedRegExp: '\\.txt$',
         ignoredRegExp: '\\w+quux',
         logger: lggr
@@ -643,7 +645,7 @@ describe('DirBackUpper', function () {
       expC('matchedRegExp: \\.txt$');
       expC('ignoredRegExp: \\w+quux');
       expC('Reading srcDir recursively...');
-      expC('Found 2 files/directories in src');
+      expC('Found 2 files and directories in src');
       expC('destDir is not existing');
       srcInfo.files.forEach(function (fileName) {
         if (includes(fileName, 'quux', 'i')) {
@@ -657,10 +659,10 @@ describe('DirBackUpper', function () {
       srcInfo.links.forEach(function (linkName) {
         expect(logStr).not.toContain(linkName);
       });
-      expC('Finished the function dirbkup.backupDirUsingLog');
+      expC('Finished the function dirBkup.backupDir');
     })();
 
-    // Cleans
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });
@@ -668,6 +670,68 @@ describe('DirBackUpper', function () {
   testName = 'Op_throws';
   test(testName, function () {
     expect('@TODO').toBe('PASS');
+  });
+
+  var dirAssets = path.join(__dirname, 'assets');
+  var dirBin = path.join(dirAssets, 'bin');
+  var dir7zip = path.join(dirBin, '7-Zip');
+  var exe7z = path.join(dir7zip, '7z.exe');
+  var dirWinRar = path.join(dirBin, 'WinRAR');
+
+  var dirSandbox = path.join(dirAssets, 'Sandbox');
+  var dirArchiving = path.join(dirSandbox, 'ZippingDir');
+  var dirDest = path.join(dirSandbox, 'DestDir');
+  var dirDestDeflate = path.join(dirDest, 'deflate');
+
+  testName = 'archiveIntoZip';
+  test(testName, function () {
+    var testDir = os.makeTmpPath('_' + testName);
+    fse.ensureDirSync(testDir);
+
+    var logFile = path.join(testDir, 'test1.log');
+    var lggr = logger.create('info/' + logFile);
+
+    var rtns = dirBkup.archiveDir(dirArchiving, dirDestDeflate, {
+      archiveType: 'ZIP',
+      compressLv: 9,
+      dateCode: 'yyyy-MM-dd',
+      password: 'This is mY&p@ss ^_<',
+      exe7z: exe7z,
+      logger: lggr
+    });
+
+    // Checking the Logger log
+    var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
+    var expC = expect(logStr).toContain; // Shorthand
+
+    expC('Start the function dirBkup.archiveDir');
+    expC('Found 6 files and directories in src');
+    expC('throws: false');
+    expC('isDryRun: false');
+    expC('archiveType: ZIP');
+    expC('forEachSubDir: true');
+    expC('includesEmptyDir: false');
+    expC('includesSymlink: false');
+    expC('matchedRegExp: null');
+    expC('ignoredRegExp: null');
+    expC('Finished the function dirBkup.archiveDir');
+
+    // Checking the returned values
+    expect(rtns).toBeDefined();
+    expect(rtns).toHaveLength(3);
+
+    rtns.forEach(function (rtn) {
+      expect(rtn.exitCode).toBe(0);
+      expect(fs.existsSync(rtn.archivedPath)).toBe(true);
+
+      // Cleaning
+      fse.removeSync(rtn.archivedPath);
+      expect(fs.existsSync(rtn.archivedPath)).toBe(false);
+    });
+
+    // Cleaning
+    fse.removeSync(testDir);
+    expect(fs.existsSync(testDir)).toBe(false);
   });
 
   var schema = {
@@ -681,169 +745,267 @@ describe('DirBackUpper', function () {
         description: 'Example task with options',
         srcDir: 'C:\\Users\\Default\\AppData',
         destDir: '${dest}\\AppData\\#{yyyy}\\#{MM-dd}',
-        ignoredRegExp: [
-          'Windows\\\\WebCache',
-          'Packages\\\\.*Cache\\\\',
-          '\\.mui$',
-          '\\.settingcontent-ms$'
-        ]
+        method: 'UPDATE',
+        options: {
+          comparison: 'TIME',
+          ignoredRegExp: [
+            'Windows\\\\WebCache',
+            'Packages\\\\.*Cache\\\\',
+            '\\.mui$',
+            '\\.settingcontent-ms$'
+          ]
+        }
+      },
+      'userAppData:zip': {
+        srcDir: 'C:\\Users\\Default\\AppData',
+        destDir: '${dest}\\AppData\\archives',
+        method: 'ARCHIVE',
+        options: {
+          archiveType: 'ZIP',
+          exe7z: '${exe7z}',
+          dateCode: 'yyyy-MM-dd',
+          compressLv: 9,
+          password: 'This is mY&p@ss ^_<',
+          ignoredRegExp: ['\\.git.*']
+        }
       },
       'appLog:current': {
         srcDir: 'D:\\AppLogs\\#{yyyy}\\#{MM}',
         destDir: '${dest}\\AppLogs\\#{yyyy}\\#{MM}',
-        syncMethod: 'MIRROR',
-        comparison: 'CONTENT',
-        isRecursive: false,
-        copiesEmpDir: true,
-        includesSymlink: true,
-        matchedRegExp: '\\.csv$'
+        method: 'MIRROR',
+        options: {
+          comparison: 'CONTENT',
+          isRecursive: false,
+          copiesEmpDir: true,
+          includesSymlink: true,
+          matchedRegExp: '\\.csv$'
+        }
       },
       'appLog:lastMonth': {
         available: false,
         srcDir: '${anyVal1}:\\AppLogs\\#{yyyy\\[MM-1]}',
         destDir: '${dest}\\AppLogs\\#{yyyy\\[MM-1]}',
-        syncMethod: 'MIRROR',
-        comparison: 'TIME',
-        matchedRegExp: '\\.csv$'
+        method: 'MIRROR',
+        options: {
+          comparison: 'TIME',
+          matchedRegExp: '\\.csv$'
+        }
       }
     }
   };
 
   testName = 'Schema_all_dryRun';
   test(testName, function () {
+    // Creating a temporary log directory
     var testDir = os.makeTmpPath('_' + testName);
     fse.ensureDirSync(testDir);
 
     var logFile = path.join(testDir, 'test1.log');
     var lggr = logger.create('info/' + logFile);
 
-    var taskName = '*';
-    var retVal = dirbkup.backupDirUsingSchema(schema, taskName, {
+    // Executing
+    var asterisk = '*';
+    var rtn = dirBkup.backupDirUsingSchema(schema, asterisk, {
       logger: lggr,
       isDryRun: true
     });
-    expect(retVal).toBeUndefined();
+    expect(rtn).toBeUndefined();
 
+    // Checking the executing log
     var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
-    // console.log(logStr);
     var expC = expect(logStr).toContain; // Shorthand
-    expC('Start function dirbkup.backupDirUsingSchema');
-    expC('taskName: "' + taskName + '"');
-    expC('matched tasks: ' + Object.keys(schema.tasks).length);
-    expC('dry-run [dirbkup.backupDirUsingSchema]:');
-    expC('Start the function dirbkup.backupDirUsingLog');
 
-    // 1. task: userAppData
-    (function () {
-      var params = schema.tasks.userAppData;
-      var srcDir = parseDate(parseTmp(params.srcDir, schema.components));
-      var destDir = parseDate(parseTmp(params.destDir, schema.components));
-      expC('Start the task: userAppData');
-      expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
-      expC('destDir: "' + destDir + '" -> "' + destDir + '"');
-      expC('syncMethod: UPDATE');
-      expC('comparison: TIME');
-      expC('isRecursive: true');
-      expC('copiesEmpDir: false');
-      expC('includesSymlink: false');
-      expC('matchedRegExp: null');
-      expC('ignoredRegExp: (' + params.ignoredRegExp.join('|') + ')');
-      expC('throws: false');
-      expC('Reading srcDir recursively...');
-      expC('Comparing a difference of file TIME');
-    })();
+    expC('Start the function dirBkup.backupDirUsingSchema');
+    expC('isDryRun: true');
+    expC('taskName: ' + asterisk);
+    expC('matched tasks number: ' + Object.keys(schema.tasks).length);
+    expC('Start the function dirBkup.backupDir');
 
-    // 2. task: appLog:current
-    (function () {
-      var params = schema.tasks['appLog:current'];
-      var srcDir = parseDate(parseTmp(params.srcDir, schema.components));
-      var destDir = parseDate(parseTmp(params.destDir, schema.components));
-      expC('Start the task: appLog:current');
-      expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
-      expC('destDir: "' + destDir + '" -> "' + destDir + '"');
-      expC('syncMethod: MIRROR');
-      expC('comparison: CONTENT');
-      expC('isRecursive: false');
-      expC('copiesEmpDir: true');
-      expC('includesSymlink: true');
-      expC('matchedRegExp: ' + params.matchedRegExp);
-      expC('ignoredRegExp: null');
-      expC('throws: false');
-      expC('Reading srcDir...');
-      expC('Error: [] Error: ENOENT: no such file or directory');
-    })();
+    // Checking a task executed or not
+    Object.keys(schema.tasks).forEach(function (taskName) {
+      expC('Start the task: ' + taskName);
 
-    // 3. task: appLog:lastMonth
-    (function () {
-      expC('Start the task: appLog:lastMonth');
-      expC('available: false => Skip this task');
-    })();
+      if (schema.tasks[taskName].available === false) {
+        expC('available: false => Skip the task: ' + taskName);
+      } else {
+        expC('Finished the task: ' + taskName);
+      }
+    });
 
-    expC('Finished function dirbkup.backupDirUsingSchema');
+    expC('Finished the function dirBkup.backupDir');
+    expC('Finished the function dirBkup.backupDirUsingSchema');
 
-    // Cleans
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });
 
-  testName = 'Schema_log_dryRun';
+  testName = 'Schema_task1_dryRun';
   test(testName, function () {
+    // Creating a temporary log directory
     var testDir = os.makeTmpPath('_' + testName);
     fse.ensureDirSync(testDir);
 
     var logFile = path.join(testDir, 'test1.log');
     var lggr = logger.create('info/' + logFile);
 
-    var taskName = 'appLog:*';
-    var retVal = dirbkup.backupDirUsingSchema(schema, taskName, {
+    // Executing
+    var taskName = 'userAppData';
+    var rtn = dirBkup.backupDirUsingSchema(schema, taskName, {
       logger: lggr,
       isDryRun: true
     });
-    expect(retVal).toBeUndefined();
+    expect(rtn).toBeUndefined();
 
+    // Checking the executing log
     var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
-    // console.log(logStr);
     var expC = expect(logStr).toContain; // Shorthand
-    expC('Start function dirbkup.backupDirUsingSchema');
-    expC('taskName: "' + taskName + '"');
-    expC('matched tasks: 2');
-    expC('dry-run [dirbkup.backupDirUsingSchema]:');
-    expC('Start the function dirbkup.backupDirUsingLog');
 
-    // 1. task: userAppData
-    (function () {
-      expect(logStr).not.toContain('Start the task: userAppData');
-    })();
+    expC('Start the function dirBkup.backupDirUsingSchema');
+    expC('isDryRun: true');
+    expC('throws: false');
+    expC('taskName: ' + taskName);
+    expC('matched tasks number: 1');
 
-    // 2. task: appLog:current
-    (function () {
-      var params = schema.tasks['appLog:current'];
-      var srcDir = parseDate(parseTmp(params.srcDir, schema.components));
-      var destDir = parseDate(parseTmp(params.destDir, schema.components));
-      expC('Start the task: appLog:current');
-      expC('srcDir: "' + srcDir + '" -> "' + srcDir + '"');
-      expC('destDir: "' + destDir + '" -> "' + destDir + '"');
-      expC('syncMethod: MIRROR');
-      expC('comparison: CONTENT');
-      expC('isRecursive: false');
-      expC('copiesEmpDir: true');
-      expC('includesSymlink: true');
-      expC('matchedRegExp: ' + params.matchedRegExp);
-      expC('ignoredRegExp: null');
-      expC('throws: false');
-      expC('Reading srcDir...');
-      expC('Error: [] Error: ENOENT: no such file or directory');
-    })();
+    var task = schema.tasks[taskName];
+    var srcDir = parseDate(parseTmp(task.srcDir, schema.components));
+    var destDir = parseDate(parseTmp(task.destDir, schema.components));
 
-    // 3. task: appLog:lastMonth
-    (function () {
-      expC('Start the task: appLog:lastMonth');
-      expC('available: false => Skip this task');
-    })();
+    expC('Start the task: ' + taskName);
+    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
+    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('method: ' + task.method);
 
-    expC('Finished function dirbkup.backupDirUsingSchema');
+    expC('Start the function dirBkup.backupDir');
+    expC('comparison: ' + task.options.comparison);
+    expC('isRecursive: true');
+    expC('copiesEmpDir: false');
+    expC('includesSymlink: false');
+    expC('matchedRegExp: null');
+    expC('ignoredRegExp: (' + task.options.ignoredRegExp.join('|') + ')');
+    expC('Reading srcDir recursively...');
+    expC('Comparing a difference of file ' + task.options.comparison);
+    expC('Finished the function dirBkup.backupDir');
 
-    // Cleans
+    expC('Finished the task: ' + taskName);
+    expC('Finished the function dirBkup.backupDirUsingSchema');
+
+    // Cleaning
+    fse.removeSync(testDir);
+    expect(fs.existsSync(testDir)).toBe(false);
+  });
+
+  testName = 'Schema_task2_dryRun';
+  test(testName, function () {
+    // Creating a temporary log directory
+    var testDir = os.makeTmpPath('_' + testName);
+    fse.ensureDirSync(testDir);
+
+    var logFile = path.join(testDir, 'test1.log');
+    var lggr = logger.create('info/' + logFile);
+
+    // Executing
+    var taskName = 'userAppData*';
+    var rtn = dirBkup.backupDirUsingSchema(schema, taskName, {
+      logger: lggr,
+      isDryRun: true
+    });
+    expect(rtn).toBeUndefined();
+
+    // Checking the executing log
+    var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
+    var expC = expect(logStr).toContain; // Shorthand
+
+    expC('Start the function dirBkup.backupDirUsingSchema');
+    expC('isDryRun: true');
+    expC('throws: false');
+    expC('taskName: ' + taskName);
+    expC('matched tasks number: 2');
+
+    // userAppData
+    expC('Start the task: userAppData');
+    expC('Start the function dirBkup.backupDir');
+    expC('Finished the function dirBkup.backupDir');
+    expC('Finished the task: userAppData');
+
+    // userAppData:zip
+    var task = schema.tasks['userAppData:zip'];
+    var srcDir = parseDate(parseTmp(task.srcDir, schema.components));
+    var destDir = parseDate(parseTmp(task.destDir, schema.components));
+
+    expC('Start the task: userAppData:zip');
+    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
+    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('method: ' + task.method);
+
+    expC('Start the function dirBkup.archiveDir');
+    expC('archiveType: ' + task.options.archiveType);
+    expC('forEachSubDir: true');
+    expC('includesEmptyDir: false');
+    expC('includesSymlink: false');
+    expC('matchedRegExp: null');
+    expC('ignoredRegExp: (' + task.options.ignoredRegExp + ')');
+    expC('Finished the function dirBkup.archiveDir');
+
+    expC('Finished the task: userAppData:zip');
+    expC('Finished the function dirBkup.backupDirUsingSchema');
+
+    // Cleaning
+    fse.removeSync(testDir);
+    expect(fs.existsSync(testDir)).toBe(false);
+  });
+
+  testName = 'Schema_task3_dryRun';
+  test(testName, function () {
+    // Creating a temporary log directory
+    var testDir = os.makeTmpPath('_' + testName);
+    fse.ensureDirSync(testDir);
+
+    var logFile = path.join(testDir, 'test1.log');
+    var lggr = logger.create('info/' + logFile);
+
+    // Executing
+    var taskName = 'appLog:current';
+    var rtn = dirBkup.backupDirUsingSchema(schema, taskName, {
+      logger: lggr,
+      isDryRun: true
+    });
+    expect(rtn).toBeUndefined();
+
+    // Checking the executing log
+    var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
+    var expC = expect(logStr).toContain; // Shorthand
+
+    expC('Start the function dirBkup.backupDirUsingSchema');
+    expC('isDryRun: true');
+    expC('throws: false');
+    expC('taskName: ' + taskName);
+    expC('matched tasks number: 1');
+
+    var task = schema.tasks[taskName];
+    var srcDir = parseDate(parseTmp(task.srcDir, schema.components));
+    var destDir = parseDate(parseTmp(task.destDir, schema.components));
+
+    expC('Start the task: ' + taskName);
+    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
+    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('method: ' + task.method);
+
+    expC('Start the function dirBkup.backupDir');
+    expC('comparison: ' + task.options.comparison);
+    expC('isRecursive: ' + task.options.isRecursive);
+    expC('copiesEmpDir: ' + task.options.copiesEmpDir);
+    expC('includesSymlink: ' + task.options.includesSymlink);
+    expC('matchedRegExp: ' + task.options.matchedRegExp);
+    expC('ignoredRegExp: null');
+    expC('Reading srcDir...');
+    expC('Error: [] Error: ENOENT: no such file or directory');
+
+    expC('Finished the function dirBkup.backupDirUsingSchema');
+    expC('Finished the task: ' + taskName);
+    expC('Finished the function dirBkup.backupDirUsingSchema');
+
+    // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
   });

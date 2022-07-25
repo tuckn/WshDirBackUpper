@@ -28,7 +28,21 @@ D:\WshDirBackUpper\
 
 ## Usage
 
-### Write Schema JSON
+### Command Line
+
+Copy the directory
+
+```console
+> cscript .\dist\Run.wsf backup "C:\Users\Public" "\\MyNas\Archives"
+```
+
+Archive each sub directory in the directory "C:\Users\Public"
+
+```console
+> cscript .\dist\Run.wsf archive "C:\Users\Public" "\\MyNas\Archives"
+```
+
+### With Schema JSON
 
 The JSON default path to load is _%CD%\.wsh\\settings.json_.
 See _.\\.wsh\\settings.json_ as example.
@@ -41,11 +55,13 @@ Write your backing up schema in the JSON file, for example,
     "tasks": {
       "userAppData": {
         "srcDir": "C:\\Users\\Default\\AppData",
-        "destDir": "\\\\MyNas\\BackUp\\User\\AppData"
+        "destDir": "\\\\MyNas\\BackUp\\User\\AppData",
+        "method": "MIRROR", // default: "UPDATE"
       },
       "appLog": {
         "srcDir": "D:\\logs\\csv",
-        "destDir": "\\\\MyNas\\BackUp\\csvLogs"
+        "destDir": "\\\\MyNas\\BackUp\\csvLogs",
+        "method": "ARCHIVE", // default: "UPDATE"
       }
     }
   }
@@ -64,11 +80,13 @@ The defined variable can be used as `${valName}` in `tasks`.
     "tasks": {
       "userAppData": {
         "srcDir": "C:\\Users\\Default\\AppData",
-        "destDir": "${dest}\\User\\AppData"
+        "destDir": "${dest}\\User\\AppData",
+        "method": "MIRROR",
       },
       "appLog": {
         "srcDir": "D:\\logs\\csv",
-        "destDir": "${dest}\\csvLogs"
+        "destDir": "${dest}\\csvLogs",
+        "method": "ARCHIVE",
       }
     }
   }
@@ -83,11 +101,13 @@ You can also use a date code literal to define `srcDir` and `destDir`.
     "tasks": {
       "appLog:current": {
         "srcDir": "C:\\logs\\csv",
-        "destDir": "D:\\BackUp\\#{yyyy}\\#{MM}"
+        "destDir": "D:\\BackUp\\#{yyyy}\\#{MM}",
+        "method": "MIRROR",
       },
       "appLog:lastMonth": {
         "srcDir": "D:\\BackUp\\#{yyyy\\[MM-1]}",
-        "destDir": "\\MyNas\\CsvLogs\\#{yyyy\\[MM-1]}"
+        "destDir": "\\MyNas\\CsvLogs\\#{yyyy\\[MM-1]}",
+        "method": "ARCHIVE",
       }
     }
   }
@@ -104,32 +124,47 @@ And can also use backing up options.
       "userAppData": {
         "srcDir": "C:\\Users\\Default\\AppData",
         "destDir": "D:\\Backup\\AppData\\#{yyyy}\\#{MM-dd}",
-        "ignoredRegExp": [
-          "Windows\\\\WebCache",
-          "Packages\\\\.*Cache\\\\",
-          "\\.mui$",
-          "\\.settingcontent-ms$"
-        ]
+        "method": "MIRROR", // default: "UPDATE"
+        "options": {
+          "comparison": "CONTENT", // default: "TIME"
+          "isRecursive": false,
+          "copiesEmpDir": true,
+          "includesSymlink": true,
+          "matchedRegExp": "\\.csv$",
+          "ignoredRegExp": [
+            "Windows\\\\WebCache",
+            "Packages\\\\.*Cache\\\\",
+            "\\.mui$",
+            "\\.settingcontent-ms$"
+          ]
+        }
       },
       "appLog:current": {
         "srcDir": "D:\\AppLogs\\#{yyyy}\\#{MM}",
         "destDir": "\\MyNas\\AppLogs\\#{yyyy}\\#{MM}",
-        "syncMethod": "MIRROR",
-        "comparison": "CONTENT",
-        "isRecursive": false,
-        "copiesEmpDir": true,
-        "includesSymlink": true,
-        "matchedRegExp": "\\.csv$"
+        "method": "ARCHIVE",
+        "options": {
+            "archiveType": "RAR", // default: "ZIP"
+            "dirWinRar": "C:\\My Apps\\WinRAR",
+            "dateCode": "yyyy-MM-dd",
+            "compressLv": 0,
+            "password": "This is mY&p@ss ^_<",
+            "ignoredRegExp": ["^\\.git.*$"]
+        }
       }
     }
   }
 ```
 
-See [WshDirBackUpper: typeSchemaBackUpperTask](https://docs.tuckn.net/WshDirBackUpper/global.html#typeSchemaBackUpperTask) for the options.
+See below to know all options.
 
-### Run with WSH
+- When the `method` is `UPDATE` or `MIRROR`, You can use [WshDirBackUpper: typeSchemaBackUpperTask](https://docs.tuckn.net/WshDirBackUpper/global.html#typeSchemaBackUpperTask)
+- When the `method` is `ARCHIVE` and `archiveType` is `ZIP`, You can use [WshZLIB: typeDeflateZipOption](https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption)
+- When the `method` is `ARCHIVE` and `archiveType` is `RAR`, You can use [WshZLIB: typeDeflateRarOption](https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption)
 
-Run all available backing up tasks.
+You can use the `schemaBackup` command to perform processing from the schema JSON file.
+
+For example, the below command runs all available backing up tasks defined in the JSON.
 
 ```console
 > cscript .\dist\Run.wsf schemaBackup *
@@ -245,8 +280,8 @@ var bkup = Wsh.DirBackUpper; // Shorthand
 var srcDir = 'C:\\Users';
 var destDir = 'D:\\BackUp\\Users\\${yyyy-MM}';
 
-bkup.backupDirUsingLog(srcDir, destDir, {
-  sync: 'MIRROR',
+bkup.backupDir(srcDir, destDir, {
+  syncMethod: 'MIRROR',
   comparison: 'CONTENT',
   ignoredRegExp: 'tmp$',
   logger: 'warn/winEvent' // See https://github.com/tuckn/WshLogger
@@ -255,33 +290,43 @@ bkup.backupDirUsingLog(srcDir, destDir, {
 
 With Schema
 
+Example of using a schema
+
 ```js
 var bkup = Wsh.DirBackUpper; // Shorthand
 
 var schema = {
   description: 'Example Schema WshDirBackUpper',
+  components: {
+    exe7z: 'C:\\My Apps\\7-Zip\\7z.exe',
+  },
   tasks: {
     userAppData: {
       srcDir: 'C:\\Users\\Default\\AppData',
       destDir: 'D:\\AppData\\#{yyyy}\\#{MM-dd}',
-      syncMethod: 'UPDATE',
-      comparison: 'TIME',
-      ignoredRegExp: [
-        'Windows\\\\WebCache',
-        'Packages\\\\.*Cache\\\\',
-      ]
+      method: 'UPDATE',
+      options: {
+        comparison: 'TIME',
+        ignoredRegExp: ['Packages\\\\.*Cache\\\\', '\\.mui$']
+      }
     },
     'appLog:current': {
-      srcDir: 'D:\\AppLogs\\#{yyyy}\\#{MM}',
+      srcDir: 'D:\\My App Data',
       destDir: '\\\\MyNas\\AppLogs\\#{yyyy}\\#{MM}',
-      syncMethod: 'MIRROR',
-      comparison: 'CONTENT',
-      matchedRegExp: '\\.csv$'
+      method: 'ARCHIVE',
+      options: {
+        archiveType: 'ZIP',
+        exe7z: '${exe7z}',
+        dateCode: 'yyyyMMddThhMMss',
+        compressLv: 9,
+        ignoredRegExp: ['^\\.git.*']
+      }
     },
     'appLog:lastMonth': {
       available: false,
       srcDir: 'D:\\AppLogs\\#{yyyy\\[MM-1]}',
       destDir: '\\\\MyNas\\AppLogs\\#{yyyy\\[MM-1]}'
+      method: 'MIRROR'
     }
   }
 };

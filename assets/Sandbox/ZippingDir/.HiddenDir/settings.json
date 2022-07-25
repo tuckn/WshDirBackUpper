@@ -1,0 +1,12 @@
+{
+  "zlib": {
+    "7zip": {
+      "32bit": ".\\bin\\7-Zip\\32bit",
+      "64bit": ".\\bin\\7-Zip\\64bit"
+    },
+    "Winrar": {
+      "32bit": ".\\bin\\WinRAR\\32bit",
+      "64bit": ".\\bin\\WinRAR\\64bit"
+    }
+  }
+}
