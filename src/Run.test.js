@@ -271,6 +271,7 @@ describe('Run', function () {
       description: 'Example Schema WshDirBackUpper',
       components: {
         dest: '\\\\MyNas\\BackUp',
+        exe7z: 'C:\\My Apps\\7-Zip\\7z.exe',
         anyVal1: null
       },
       tasks: {
@@ -403,8 +404,8 @@ describe('Run', function () {
     var destDir = parseDate(parseTmp(task.destDir, scm.components));
 
     expC('Start the task: ' + taskName);
-    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
-    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('srcDir: ' + task.srcDir + ' -> ' + srcDir);
+    expC('destDir: ' + task.destDir + ' -> ' + destDir);
     expC('method: ' + task.method);
 
     expC('Start the function dirBkup.backupDir');
@@ -463,9 +464,10 @@ describe('Run', function () {
     var destDir = parseDate(parseTmp(task.destDir, scm.components));
 
     expC('Start the task: userAppData:zip');
-    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
-    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('srcDir: ' + task.srcDir + ' -> ' + srcDir);
+    expC('destDir: ' + task.destDir + ' -> ' + destDir);
     expC('method: ' + task.method);
+    expC('options.exe7z: ${exe7z} -> ' + scm.components.exe7z);
 
     expC('Start the function dirBkup.archiveDir');
     expC('archiveType: ' + task.options.archiveType);
@@ -514,8 +516,8 @@ describe('Run', function () {
     var destDir = parseDate(parseTmp(task.destDir, scm.components));
 
     expC('Start the task: ' + taskName);
-    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
-    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('srcDir: ' + task.srcDir + ' -> ' + srcDir);
+    expC('destDir: ' + task.destDir + ' -> ' + destDir);
     expC('method: ' + task.method);
 
     expC('Start the function dirBkup.backupDir');

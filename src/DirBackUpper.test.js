@@ -19,7 +19,6 @@ var parseTmp = util.parseTemplateLiteral;
 var parseDate = util.parseDateLiteral;
 var includes = util.includes;
 var endsWith = util.endsWith;
-var srrd = os.surroundCmdArg;
 
 var noneStrVals = [true, false, undefined, null, 0, 1, NaN, Infinity, [], {}];
 var noneObjVals = [true, false, undefined, null, 0, 1, NaN, Infinity, [], ''];
@@ -738,6 +737,7 @@ describe('DirBackUpper', function () {
     description: 'Example Schema WshDirBackUpper',
     components: {
       dest: '\\\\MyNas\\BackUp',
+      exe7z: 'C:\\My Apps\\7-Zip\\7z.exe',
       anyVal1: null
     },
     tasks: {
@@ -851,6 +851,7 @@ describe('DirBackUpper', function () {
 
     // Executing
     var taskName = 'userAppData';
+
     var rtn = dirBkup.backupDirUsingSchema(schema, taskName, {
       logger: lggr,
       isDryRun: true
@@ -872,8 +873,8 @@ describe('DirBackUpper', function () {
     var destDir = parseDate(parseTmp(task.destDir, schema.components));
 
     expC('Start the task: ' + taskName);
-    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
-    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('srcDir: ' + task.srcDir + ' -> ' + srcDir);
+    expC('destDir: ' + task.destDir + ' -> ' + destDir);
     expC('method: ' + task.method);
 
     expC('Start the function dirBkup.backupDir');
@@ -934,9 +935,10 @@ describe('DirBackUpper', function () {
     var destDir = parseDate(parseTmp(task.destDir, schema.components));
 
     expC('Start the task: userAppData:zip');
-    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
-    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('srcDir: ' + task.srcDir + ' -> ' + srcDir);
+    expC('destDir: ' + task.destDir + ' -> ' + destDir);
     expC('method: ' + task.method);
+    expC('options.exe7z: ${exe7z} -> ' + schema.components.exe7z);
 
     expC('Start the function dirBkup.archiveDir');
     expC('archiveType: ' + task.options.archiveType);
@@ -987,8 +989,8 @@ describe('DirBackUpper', function () {
     var destDir = parseDate(parseTmp(task.destDir, schema.components));
 
     expC('Start the task: ' + taskName);
-    expC('source: ' + srrd(task.srcDir) + ' -> ' + srrd(srcDir));
-    expC('dest: ' + srrd(task.destDir) + ' -> ' + srrd(destDir));
+    expC('srcDir: ' + task.srcDir + ' -> ' + srcDir);
+    expC('destDir: ' + task.destDir + ' -> ' + destDir);
     expC('method: ' + task.method);
 
     expC('Start the function dirBkup.backupDir');

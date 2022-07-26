@@ -22,6 +22,7 @@
   var logger = Wsh.Logger;
 
   var objAdd = Object.assign;
+  var cloneDeep = util.cloneDeep;
   var insp = util.inspect;
   var obtain = util.obtainPropVal;
   var parseTmp = util.parseTemplateLiteral;
@@ -571,7 +572,8 @@
 
     lggr.info('taskName: ' + taskName);
 
-    var tasks = schema.tasks; // Shorthand
+    var scm = cloneDeep(schema); // Copy the Object
+    var tasks = scm.tasks; // Shorthand
     var taskNames = Object.keys(tasks);
 
     var regNameMatcher;
@@ -588,7 +590,7 @@
     lggr.info('matched tasks number: ' + execTasks.length);
 
     // Getting component values in the schema
-    var cmpVals = schema.components; // Shorthand
+    var cmpVals = scm.components; // Shorthand
 
     // Setting component values in keys storing null.
     if (hasContent(options.overwrites)) {
@@ -618,12 +620,27 @@
 
       // Setting parameters
 
-      // Parsing source and dest path
-      var srcDir = parseDate(parseTmp(tsk.srcDir || '', cmpVals));
-      lggr.info('source: ' + srrd(tsk.srcDir) + ' -> ' + srrd(srcDir));
+      // Parsing with the component values
+      var parseComponentStr = function (val) {
+        if (!isSolidString(val)) return val;
+        return parseDate(parseTmp(val || '', cmpVals));
+      };
 
-      var dest = parseDate(parseTmp(tsk.destDir || '', cmpVals));
-      lggr.info('dest: ' + srrd(tsk.destDir) + ' -> ' + srrd(dest));
+      Object.keys(tsk).forEach(function (key) {
+        var preVal;
+
+        if (key === 'options') {
+          Object.keys(tsk[key]).forEach(function (opKey) {
+            preVal = tsk[key][opKey];
+            tsk[key][opKey] = parseComponentStr(preVal);
+            lggr.info(key + '.' + opKey + ': ' + preVal + ' -> ' + tsk[key][opKey]);
+          });
+        } else {
+          preVal = tsk[key];
+          tsk[key] = parseComponentStr(preVal);
+          lggr.info(key + ': ' + preVal + ' -> ' + tsk[key]);
+        }
+      });
 
       var method = obtain(tsk, 'method');
       lggr.info('method: ' + method);
@@ -643,7 +660,7 @@
       if (isSameMeaning(method, 'ARCHIVE')) {
         // Archiving
         try {
-          dirBkup.archiveDir(srcDir, dest, op);
+          dirBkup.archiveDir(tsk.srcDir, tsk.destDir, op);
         } catch (e) {
           if (throws) throw new Error(insp(e));
           lggr.error(insp(e));
@@ -653,7 +670,7 @@
         op = objAdd(op, { syncMethod: method });
 
         try {
-          dirBkup.backupDir(srcDir, dest, op);
+          dirBkup.backupDir(tsk.srcDir, tsk.destDir, op);
         } catch (e) {
           if (throws) throw new Error(insp(e));
           lggr.error(insp(e));

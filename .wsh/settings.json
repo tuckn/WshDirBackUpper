@@ -3,6 +3,7 @@
         "description": "Example Schema WshDirBackUpper",
         "components": {
             "dest": "\\\\MyNas\\BackUp",
+            "exe7z": "C:\\My Apps\\7-Zip\\7z.exe",
             "anyVal1": null
         },
         "tasks": {
