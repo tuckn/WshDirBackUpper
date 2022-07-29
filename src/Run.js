@@ -92,6 +92,7 @@ cli.addProgram({
  *   -D, --date-code <expression>   If specify "yyyy-MM-dd", The dest name is <name>_yyyy-MM-dd.zip
  *   -C, --password <string>        Encrypt the archive file. File names will be not encrypted in Zip.
  *   -O, --compressLv <Lv>          Compression level. ZIP (1,3,5,7,9), RAR (0-store...3-default...5-maximal).
+ *   -N, --rootFiles-name <name>    When forEachSubDire option is true, root files are archived as this name. (default: 'RootFiles')
  *   -F, --no-forEach-subDir        Compresses each sub directory in the specified source directory.
  *   -P, --no-omit-empdir           Compresses empty directories
  *   -L, --no-omit-symlink          Compresses symbolic links
@@ -110,6 +111,7 @@ cli.addProgram({
   version: '2.2.0',
   options: [
     ['-A, --archive-type <type>', 'The archiving type, "ZIP" (default) or "RAR"', 'ZIP'],
+    ['-N, --rootFiles-name <name>', 'When forEachSubDire option is true, root files are archived as this name. (default: "RootFiles")'],
     ['-F, --no-forEach-subDir', 'Compresses each sub directory in the specified source directory.'],
     ['-P, --no-omit-empdir', 'Compresses empty directories'],
     ['-D, --date-code <expression>', 'If specify "yyyy-MM-dd", The dest name is <name>_yyyy-MM-dd.zip'],
@@ -126,6 +128,7 @@ cli.addProgram({
     var rtns = dirBkup.archiveDir(srcDir, dest, {
       archiveType: opt.archiveType,
       forEachSubDir: opt.forEachSubDir,
+      rootFilesName: opt.rootFilesName,
       dateCode: opt.dateCode,
       password: opt.password,
       compressLv: opt.compressLv,

@@ -273,6 +273,7 @@
    * @param {typeDeflateZipOption|typeDeflateRarOption} [options] - Optional parameters. See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption|Wsh.ZLIB.typeDeflateZipOption} and {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption|Wsh.ZLIB.typeDeflateRarOption}.
    * @param {string} [options.archiveType='ZIP'] - The archiving method, 'ZIP' (default) or 'RAR'
    * @param {boolean} [options.forEachSubDir=true] - Compresses each sub directory in the specified source directory.
+   * @param {boolean} [options.rootFilesName='RootFiles'] - When forEachSubDire option is true, root files are archived as this name. (default: 'RootFiles')
    * @param {boolean} [options.includesEmptyDir=false] - Compresses empty directories.
    * @param {boolean} [options.includesSymlink=false] - Compresses symbolic links.
    * @param {string|Array} [options.matchedRegExp] - When forEachSubDir option is true, matched RegExp only for the root directories and files in the source. e.g. "^[^.].+$"
@@ -411,8 +412,11 @@
 
       // Compresses root files
       if (!isEmpty(rootFiles)) {
+        var rootFilesName = obtain(options, 'rootFilesName', 'RootFiles');
+        var destRootFiles = path.join(destPath, rootFilesName);
+
         try {
-          var rtnCmpFs = archiveFunc(rootFiles, destPath, options);
+          var rtnCmpFs = archiveFunc(rootFiles, destRootFiles, options);
           lggr.info('Finished to archive process with exitCode: ' + rtnCmpFs.exitCode);
           lggr.info('archivedPath: ' + rtnCmpFs.archivedPath);
           rtn.push(rtnCmpFs);

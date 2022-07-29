@@ -106,6 +106,8 @@ var _makeTestFiles = function (testDir) {
 describe('DirBackUpper', function () {
   var testName;
 
+  // Copy
+
   testName = 'DefOp_dryRun';
   test(testName, function () {
     var testDir = os.makeTmpPath('_' + testName);
@@ -670,6 +672,8 @@ describe('DirBackUpper', function () {
   test(testName, function () {
     expect('@TODO').toBe('PASS');
   });
+
+  // Archive
 
   var dirAssets = path.join(__dirname, 'assets');
   var dirBin = path.join(dirAssets, 'bin');
