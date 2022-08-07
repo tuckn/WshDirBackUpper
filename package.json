@@ -1,7 +1,7 @@
 {
   "name": "@tuckn/WshDirBackUpper",
   "description": "The WSH (Windows Script Host) CLI that updates or mirrors directories according to the schema defined in a JSON file.",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "author": "Tuckn <tuckn333@gmail.com>",
   "funding": {
     "type": "github",
@@ -60,6 +60,7 @@
     "test:name:Op_includesSymlink": ".\\scripts\\Test DirBackUpper -t Op_includesSymlink$",
     "test:name:Op_RegExp": ".\\scripts\\Test DirBackUpper -t Op_RegExp$",
     "test:name:Op_throws": ".\\scripts\\Test DirBackUpper -t Op_throws$",
+    "test:name:archiveIntoZip_dryRun": ".\\scripts\\Test DirBackUpper -t archiveIntoZip_dryRun$",
     "test:name:archiveIntoZip": ".\\scripts\\Test DirBackUpper -t archiveIntoZip$",
     "test:name:Schema_all_dryRun": ".\\scripts\\Test DirBackUpper -t Schema_all_dryRun$",
     "test:name:Schema_task1_dryRun": ".\\scripts\\Test DirBackUpper -t Schema_task1_dryRun$",

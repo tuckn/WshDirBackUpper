@@ -686,6 +686,63 @@ describe('DirBackUpper', function () {
   var dirDest = path.join(dirSandbox, 'DestDir');
   var dirDestDeflate = path.join(dirDest, 'deflate');
 
+  testName = 'archiveIntoZip_dryRun';
+  test(testName, function () {
+    var testDir = os.makeTmpPath('_' + testName);
+    fse.ensureDirSync(testDir);
+
+    var logFile = path.join(testDir, 'test1.log');
+    var lggr = logger.create('info/' + logFile);
+
+    var rtns = dirBkup.archiveDir(dirArchiving, dirDestDeflate, {
+      archiveType: 'ZIP',
+      archiveOptions: {
+        isDryRun: true,
+        exe7z: exe7z,
+        compressLv: 9,
+        dateCode: 'yyyy-MM-dd',
+        password: 'This is mY&p@ss ^_<'
+      },
+      additionalArchiveOptions: {
+        '.HiddenDir': {
+          dateCode: 'yyMMdd'
+        },
+        SubDir: {
+          excludingFiles: ['*.txt']
+        }
+      },
+      logger: lggr
+    });
+
+    // Checking the Logger log
+    var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
+
+    var expC = expect(logStr).toContain; // Shorthand
+    expC('Start the function dirBkup.archiveDir');
+    expC('Found 6 files and directories in src');
+    expC('throws: false');
+    expC('archiveType: ZIP');
+    expC('archiveOptions: {');
+    expC('  isDryRun: true');
+    expC('  compressLv: 9');
+    expC('  dateCode: "yyyy-MM-dd"');
+    expC('  password: "This is mY&p@ss ^_<"');
+    expC('options for archiving');
+    expC('  dateCode: "yyMMdd"');
+    expC('  excludingFiles: [');
+    expC('  0: "*.txt"');
+    expC('forEachSubDir: true');
+    expC('includesEmptyDir: false');
+    expC('includesSymlink: false');
+    expC('matchedRegExp: null');
+    expC('ignoredRegExp: null');
+    expC('Finished the function dirBkup.archiveDir');
+
+    // Checking the returned values
+    expect(rtns).toBeDefined();
+    expect(rtns).toHaveLength(3);
+  });
+
   testName = 'archiveIntoZip';
   test(testName, function () {
     var testDir = os.makeTmpPath('_' + testName);
@@ -696,10 +753,20 @@ describe('DirBackUpper', function () {
 
     var rtns = dirBkup.archiveDir(dirArchiving, dirDestDeflate, {
       archiveType: 'ZIP',
-      compressLv: 9,
-      dateCode: 'yyyy-MM-dd',
-      password: 'This is mY&p@ss ^_<',
-      exe7z: exe7z,
+      archiveOptions: {
+        exe7z: exe7z,
+        compressLv: 9,
+        dateCode: 'yyyy-MM-dd',
+        password: 'This is mY&p@ss ^_<'
+      },
+      additionalArchiveOptions: {
+        '.HiddenDir': {
+          dateCode: 'yyMMdd'
+        },
+        SubDir: {
+          excludingFiles: ['*.txt']
+        }
+      },
       logger: lggr
     });
 
@@ -710,8 +777,16 @@ describe('DirBackUpper', function () {
     expC('Start the function dirBkup.archiveDir');
     expC('Found 6 files and directories in src');
     expC('throws: false');
-    expC('isDryRun: false');
     expC('archiveType: ZIP');
+    expC('archiveOptions: {');
+    expect(logStr).not.toContain('isDryRun: true');
+    expC('  compressLv: 9');
+    expC('  dateCode: "yyyy-MM-dd"');
+    expC('  password: "This is mY&p@ss ^_<"');
+    expC('options for archiving');
+    expC('  dateCode: "yyMMdd"');
+    expC('  excludingFiles: [');
+    expC('  0: "*.txt"');
     expC('forEachSubDir: true');
     expC('includesEmptyDir: false');
     expC('includesSymlink: false');
@@ -735,6 +810,9 @@ describe('DirBackUpper', function () {
     // Cleaning
     fse.removeSync(testDir);
     expect(fs.existsSync(testDir)).toBe(false);
+
+    // @TODO
+    expect('@TODO').toBe('Test to automaticaly confirm the archived file names and contents');
   });
 
   var schema = {
@@ -765,12 +843,23 @@ describe('DirBackUpper', function () {
         destDir: '${dest}\\AppData\\archives',
         method: 'ARCHIVE',
         options: {
+          ignoredRegExp: ['\\.git.*'],
           archiveType: 'ZIP',
-          exe7z: '${exe7z}',
-          dateCode: 'yyyy-MM-dd',
-          compressLv: 9,
-          password: 'This is mY&p@ss ^_<',
-          ignoredRegExp: ['\\.git.*']
+          archiveOptions: {
+            exe7z: '${exe7z}',
+            dateCode: 'yyyy-MM-dd',
+            compressLv: 9,
+            password: 'This is mY&p@ss ^_<'
+          },
+          additionalArchiveOptions: {
+            'Visual Studio Code': {
+              excludingFiles: [
+                '*\\data\\user-data\\*Cache*\\*',
+                '*\\data\\user-data\\logs\\*',
+                '*\\data\\user-data\\*\\*\\LOCK'
+              ]
+            }
+          }
         }
       },
       'appLog:current': {
@@ -823,7 +912,6 @@ describe('DirBackUpper', function () {
     expC('isDryRun: true');
     expC('taskName: ' + asterisk);
     expC('matched tasks number: ' + Object.keys(schema.tasks).length);
-    expC('Start the function dirBkup.backupDir');
 
     // Checking a task executed or not
     Object.keys(schema.tasks).forEach(function (taskName) {
@@ -836,7 +924,12 @@ describe('DirBackUpper', function () {
       }
     });
 
+    expC('Start the function dirBkup.backupDir');
     expC('Finished the function dirBkup.backupDir');
+
+    expC('Start the function dirBkup.archiveDir');
+    expC('Finished the function dirBkup.archiveDir');
+
     expC('Finished the function dirBkup.backupDirUsingSchema');
 
     // Cleaning
@@ -892,6 +985,8 @@ describe('DirBackUpper', function () {
     expC('Comparing a difference of file ' + task.options.comparison);
     expC('Finished the function dirBkup.backupDir');
 
+    expect('Start the function dirBkup.archiveDir').not.toContain();
+
     expC('Finished the task: ' + taskName);
     expC('Finished the function dirBkup.backupDirUsingSchema');
 
@@ -942,7 +1037,6 @@ describe('DirBackUpper', function () {
     expC('srcDir: ' + task.srcDir + ' -> ' + srcDir);
     expC('destDir: ' + task.destDir + ' -> ' + destDir);
     expC('method: ' + task.method);
-    expC('options.exe7z: ${exe7z} -> ' + schema.components.exe7z);
 
     expC('Start the function dirBkup.archiveDir');
     expC('archiveType: ' + task.options.archiveType);
@@ -952,6 +1046,8 @@ describe('DirBackUpper', function () {
     expC('matchedRegExp: null');
     expC('ignoredRegExp: (' + task.options.ignoredRegExp + ')');
     expC('Finished the function dirBkup.archiveDir');
+
+    expect('Start the function dirBkup.backupDir').not.toContain();
 
     expC('Finished the task: userAppData:zip');
     expC('Finished the function dirBkup.backupDirUsingSchema');
@@ -1006,6 +1102,8 @@ describe('DirBackUpper', function () {
     expC('ignoredRegExp: null');
     expC('Reading srcDir...');
     expC('Error: [] Error: ENOENT: no such file or directory');
+
+    expect('Start the function dirBkup.archiveDir').not.toContain();
 
     expC('Finished the function dirBkup.backupDirUsingSchema');
     expC('Finished the task: ' + taskName);

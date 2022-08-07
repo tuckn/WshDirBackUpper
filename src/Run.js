@@ -127,18 +127,20 @@ cli.addProgram({
   action: function (srcDir, dest, opt) {
     var rtns = dirBkup.archiveDir(srcDir, dest, {
       archiveType: opt.archiveType,
+      archiveOptions: {
+        dateCode: opt.dateCode,
+        password: opt.password,
+        compressLv: opt.compressLv,
+        isDryRun: opt.dryRun
+      },
       forEachSubDir: opt.forEachSubDir,
       rootFilesName: opt.rootFilesName,
-      dateCode: opt.dateCode,
-      password: opt.password,
-      compressLv: opt.compressLv,
-      copiesEmpDir: !opt.omitEmpdir,
+      includesEmptyDir: !opt.omitEmpdir,
       includesSymlink: !opt.omitSymlink,
       matchedRegExp: opt.matchedReg,
       ignoredRegExp: opt.ignoredReg,
       throws: !opt.ignoreErr,
-      logger: opt.logger,
-      isDryRun: opt.dryRun
+      logger: opt.logger
     });
 
     if (opt.dryRun) console.dir(rtns);

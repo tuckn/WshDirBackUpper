@@ -30,6 +30,8 @@
   var hasContent = util.hasContent;
   var includes = util.includes;
   var isArray = util.isArray;
+  var isBoolean = util.isBoolean;
+  var isString = util.isString;
   var isEmpty = util.isEmpty;
   var isSolidString = util.isSolidString;
   var isPlainObject = util.isPlainObject;
@@ -81,10 +83,10 @@
    * @param {boolean} [options.includesSymlink=false] - Copies symbolic link.
    * @param {string|Array} [options.matchedRegExp] - e.g. "\\w+\\.txt$"
    * @param {string|Array} [options.ignoredRegExp] - e.g. "\\.tmp$"
-   * @param {boolean} [options.throws=false] - Throws a error.
    * @param {(Logger|string|object)} [options.logger] - The Logger instance or create options. See {@link https://docs.tuckn.net/WshLogger/Wsh.Logger.html#.create|Wsh.Logger.create}.
    * @param {boolean} [options.transportsLog=true] - Outputs Wsh.Logger logs after connecting. See {@link https://docs.tuckn.net/WshLogger/Wsh.Logger.html#.this.transport|Wsh.Logger.transport}.
    * @param {boolean} [options.isDryRun=false] - No execute, returns the string of command.
+   * @param {boolean} [options.throws=false] - Throws a error.
    * @returns {void}
    */
   dirBkup.backupDir = function (srcDir, destDir, options) {
@@ -117,11 +119,11 @@
     var comparison = obtain(options, 'comparison', 'TIME');
     lggr.info('comparison: ' + comparison);
 
-    var throws = obtain(options, 'throws', false);
-    lggr.info('throws: ' + String(throws));
-
     var isDryRun = obtain(options, 'isDryRun', false);
     lggr.info('isDryRun: ' + String(isDryRun));
+
+    var throws = obtain(options, 'throws', false);
+    lggr.info('throws: ' + String(throws));
 
     var copyDummy = function () { return; };
     var copyFunc = isDryRun ? copyDummy : fse.copySync;
@@ -259,29 +261,34 @@
    * var dest = 'D:\\BackUp\\Users\\#{yyyy}\\#{MM - 1}';
    *
    * dirBkup.archiveDir(srcDir, dest, {
-   *   ignoredRegExp: '\\.git.*',
-   *   dateCode: 'yyyy-MM-dd_hhmmss',
-   *   compressLv: 9,
-   *   password: 'This is mY&p@ss ^_<',
-   *   exe7z: exe7z
+   *   archiveType: 'ZIP',
+   *   ignoredRegExp": ["\\.git.*"],
+   *   archiveOptions": {
+   *     exe7z: exe7z
+   *     dateCode: 'yyyy-MM-dd_hhmmss',
+   *     compressLv: 9,
+   *     password: 'This is mY&p@ss ^_<',
+   *   },
    *   logger: 'warn/winEvent' // See https://github.com/tuckn/WshLogger
    * });
    * @function archiveDir
    * @memberof Wsh.DirBackUpper
    * @param {string} srcDir - The source directory path to back up.
    * @param {string} dest - The destination directory path.
-   * @param {typeDeflateZipOption|typeDeflateRarOption} [options] - Optional parameters. See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption|Wsh.ZLIB.typeDeflateZipOption} and {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption|Wsh.ZLIB.typeDeflateRarOption}.
+   * @param {object} [options] - Optional parameters.
    * @param {string} [options.archiveType='ZIP'] - The archiving method, 'ZIP' (default) or 'RAR'
+   * @param {typeDeflateZipOption|typeDeflateRarOption} [options.archiveOptions] - Optional parameters. See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption|Wsh.ZLIB.typeDeflateZipOption} and {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption|Wsh.ZLIB.typeDeflateRarOption}.
    * @param {boolean} [options.forEachSubDir=true] - Compresses each sub directory in the specified source directory.
    * @param {boolean} [options.rootFilesName='RootFiles'] - When forEachSubDire option is true, root files are archived as this name. (default: 'RootFiles')
    * @param {boolean} [options.includesEmptyDir=false] - Compresses empty directories.
    * @param {boolean} [options.includesSymlink=false] - Compresses symbolic links.
    * @param {string|Array} [options.matchedRegExp] - When forEachSubDir option is true, matched RegExp only for the root directories and files in the source. e.g. "^[^.].+$"
    * @param {string|Array} [options.ignoredRegExp] - When forEachSubDir option is true, ignored RegExp only for the root directories and files in the source. e.g. "\\.git.*"
-   * @param {boolean} [options.throws=false] - Throws a error.
    * @param {(Logger|string|object)} [options.logger] - The Logger instance or create options. See {@link https://docs.tuckn.net/WshLogger/Wsh.Logger.html#.create|Wsh.Logger.create}.
+   * @param {boolean} [options.isDryRun=false] - No execute, returns the string of command.
+   * @param {boolean} [options.throws=false] - Throws a error.
    * @param {boolean} [options.transportsLog=true] - Outputs Wsh.Logger logs after connecting. See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateResult|Wsh.ZLIB.typeDeflateResult}.
-   * @returns {typeDeflateResult|typeDeflateResult[]|string} - @see typeDeflateResult. If options.isDryRun is true, returns string.
+   * @returns {typeDeflateResult|typeDeflateResult[]|string|string[]} - @see typeDeflateResult. If options.isDryRun is true, returns string.
    */
   dirBkup.archiveDir = function (srcDir, dest, options) {
     var FN = 'dirBkup.archiveDir';
@@ -313,11 +320,20 @@
     var throws = obtain(options, 'throws', false);
     lggr.info('throws: ' + String(throws));
 
-    var isDryRun = obtain(options, 'isDryRun', false);
-    lggr.info('isDryRun: ' + String(isDryRun));
-
     var archiveType = obtain(options, 'archiveType', 'ZIP');
     lggr.info('archiveType: ' + String(archiveType));
+
+    var archiveOptions = obtain(options, 'archiveOptions', true);
+    lggr.info('archiveOptions: ' + insp(archiveOptions));
+
+    // Overwriting isDryRUn
+    var isDryRun = obtain(options, 'isDryRun', null);
+    lggr.info('isDryRun: ' + String(isDryRun));
+
+    var compOp = archiveOptions;
+    if (isBoolean(isDryRun)) {
+      compOp = objAdd(archiveOptions, { isDryRun: isDryRun });
+    }
 
     var archiveFunc = zlib.deflateSync;
     if (isSameMeaning(archiveType, 'RAR')) {
@@ -331,7 +347,7 @@
 
     if (!forEachSubDir) {
       try {
-        rtn = archiveFunc(srcDirPath, destPath, options);
+        rtn = archiveFunc(srcDirPath, destPath, compOp);
         lggr.info('Finished to archive process with exitCode: ' + rtn.exitCode);
         lggr.info('archivedPath: ' + rtn.archivedPath);
       } catch (e) {
@@ -339,7 +355,7 @@
         lggr.error(insp(e));
       }
     } else {
-      // Setting filtering sub directories options
+      // Setting options for filtering sub directories
       var includesEmptyDir = obtain(options, 'includesEmptyDir', false);
       lggr.info('includesEmptyDir: ' + String(includesEmptyDir));
 
@@ -358,7 +374,7 @@
       }
       lggr.info('ignoredRegExp: ' + ignoredRegExp);
 
-      // Getting archived file
+      // Getting files to be archive
       var srcFileNames = fs.readdirSync(srcDirPath, {
         withFileTypes: false,
         excludesSymlink: !includesSymlink,
@@ -370,9 +386,10 @@
       var srcNum = srcFileNames.length;
       lggr.info('Found ' + srcNum + ' files and directories in src');
 
-      // Compresses each sub directory and makes root files list
+      // Compresses each sub directory and makes root files
       rtn = [];
       var rootFiles = [];
+      var additionalArchiveOptions = obtain(options, 'additionalArchiveOptions', null);
 
       srcFileNames.forEach(function (srcFileName, i) {
         if (lggr.transportation === 'CONSOLE') WScript.StdOut.Write('.');
@@ -393,8 +410,19 @@
             }
           }
 
+          var op = cloneDeep(compOp); // Copy the Object
+
+          // Overwriting options with the current directory options
+          if (isPlainObject(additionalArchiveOptions)) {
+            var dirName = path.basename(srcPath);
+            var exOp = additionalArchiveOptions[dirName];
+            if (isPlainObject(exOp)) op = objAdd(op, exOp);
+          }
+
+          lggr.info('options for archiving: ' + insp(op));
+
           try {
-            var rtnCmpDir = archiveFunc(srcPath, destPath, options);
+            var rtnCmpDir = archiveFunc(srcPath, destPath, op);
             lggr.info('Finished to archive process with exitCode: ' + rtnCmpDir.exitCode);
             lggr.info('archivedPath: ' + rtnCmpDir.archivedPath);
             rtn.push(rtnCmpDir);
@@ -416,7 +444,7 @@
         var destRootFiles = path.join(destPath, rootFilesName);
 
         try {
-          var rtnCmpFs = archiveFunc(rootFiles, destRootFiles, options);
+          var rtnCmpFs = archiveFunc(rootFiles, destRootFiles, compOp);
           lggr.info('Finished to archive process with exitCode: ' + rtnCmpFs.exitCode);
           lggr.info('archivedPath: ' + rtnCmpFs.archivedPath);
           rtn.push(rtnCmpFs);
@@ -506,12 +534,23 @@
    *       destDir: '${dest}\\AppData\\archives',
    *       method: 'ARCHIVE',
    *       options: {
+   *         ignoredRegExp: ['\\.git.*'],
    *         archiveType: 'ZIP',
-   *         exe7z: '${exe7z}',
-   *         dateCode: 'yyyy-MM-dd',
-   *         compressLv: 9,
-   *         password: 'This is mY&p@ss ^_<',
-   *         ignoredRegExp: ['\\.git.*']
+   *         archiveOptions: {
+   *           exe7z: '${exe7z}',
+   *           dateCode: 'yyyy-MM-dd',
+   *           compressLv: 9,
+   *           password: 'This is mY&p@ss ^_<'
+   *         },
+   *         additionalArchiveOptions: {
+   *           'Visual Studio Code': {
+   *             excludingFiles: [
+   *               '*\\data\\user-data\\*Cache*\\*',
+   *               '*\\data\\user-data\\logs\\*',
+   *               '*\\data\\user-data\\*\\*\\LOCK'
+   *             ]
+   *           }
+   *         }
    *       }
    *     },
    *     'appLog:current': {
@@ -596,7 +635,7 @@
     // Getting component values in the schema
     var cmpVals = scm.components; // Shorthand
 
-    // Setting component values in keys storing null.
+    // Overwriting component values in keys storing null.
     if (hasContent(options.overwrites)) {
       Object.keys(cmpVals).forEach(function (key) {
         if (cmpVals[key] !== null) return;
@@ -631,16 +670,8 @@
       };
 
       Object.keys(tsk).forEach(function (key) {
-        var preVal;
-
-        if (key === 'options') {
-          Object.keys(tsk[key]).forEach(function (opKey) {
-            preVal = tsk[key][opKey];
-            tsk[key][opKey] = parseComponentStr(preVal);
-            lggr.info(key + '.' + opKey + ': ' + preVal + ' -> ' + tsk[key][opKey]);
-          });
-        } else {
-          preVal = tsk[key];
+        if (isString(tsk[key])) {
+          var preVal = tsk[key];
           tsk[key] = parseComponentStr(preVal);
           lggr.info(key + ': ' + preVal + ' -> ' + tsk[key]);
         }
@@ -650,15 +681,15 @@
       lggr.info('method: ' + method);
 
       var op = objAdd(
-        // Common options
+        // The option on the schema
+        tsk.options,
+        // The options at this function
         {
           logger: lggr,
           transportsLog: transportsLog,
           isDryRun: isDryRun,
           throws: throws
-        },
-        // The task options
-        tsk.options
+        }
       );
 
       if (isSameMeaning(method, 'ARCHIVE')) {

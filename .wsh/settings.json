@@ -27,12 +27,23 @@
                 "destDir": "${dest}\\AppData\\archives",
                 "method": "ARCHIVE",
                 "options": {
+                    "ignoredRegExp": ["\\.git.*"],
                     "archiveType": "ZIP",
-                    "exe7z": "${exe7z}",
-                    "dateCode": "yyyy-MM-dd",
-                    "compressLv": 9,
-                    "password": "This is mY&p@ss ^_<",
-                    "ignoredRegExp": ["\\.git.*"]
+                    "archiveOptions": {
+                        "exe7z": "${exe7z}",
+                        "dateCode": "yyyy-MM-dd",
+                        "compressLv": 9,
+                        "password": "This is mY&p@ss ^_<"
+                    },
+                    "additionalArchiveOptions": {
+                        "Visual Studio Code": {
+                            "excludingFiles": [
+                                "*\\data\\user-data\\*Cache*\\*",
+                                "*\\data\\user-data\\logs\\*",
+                                "*\\data\\user-data\\*\\*\\LOCK"
+                            ]
+                        }
+                    }
                 }
             },
             "appLog:current": {

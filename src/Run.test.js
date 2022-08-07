@@ -295,12 +295,23 @@ describe('Run', function () {
           destDir: '${dest}\\AppData\\archives',
           method: 'ARCHIVE',
           options: {
+            ignoredRegExp: ['\\.git.*'],
             archiveType: 'ZIP',
-            exe7z: '${exe7z}',
-            dateCode: 'yyyy-MM-dd',
-            compressLv: 9,
-            password: 'This is mY&p@ss ^_<',
-            ignoredRegExp: ['\\.git.*']
+            archiveOptions: {
+              exe7z: '${exe7z}',
+              dateCode: 'yyyy-MM-dd',
+              compressLv: 9,
+              password: 'This is mY&p@ss ^_<'
+            },
+            additionalArchiveOptions: {
+              'Visual Studio Code': {
+                excludingFiles: [
+                  '*\\data\\user-data\\*Cache*\\*',
+                  '*\\data\\user-data\\logs\\*',
+                  '*\\data\\user-data\\*\\*\\LOCK'
+                ]
+              }
+            }
           }
         },
         'appLog:current': {
@@ -353,7 +364,6 @@ describe('Run', function () {
     expC('isDryRun: true');
     expC('taskName: ' + asterisk);
     expC('matched tasks number: ' + Object.keys(tasks).length);
-    expC('Start the function dirBkup.backupDir');
 
     // Checking a task executed or not
     Object.keys(scm.tasks).forEach(function (taskName) {
@@ -366,7 +376,12 @@ describe('Run', function () {
       }
     });
 
+    expC('Start the function dirBkup.backupDir');
     expC('Finished the function dirBkup.backupDir');
+
+    expC('Start the function dirBkup.archiveDir');
+    expC('Finished the function dirBkup.archiveDir');
+
     expC('Finished the function dirBkup.backupDirUsingSchema');
 
     // Cleaning
@@ -394,8 +409,8 @@ describe('Run', function () {
     var expC = expect(rtn.stdout).toContain; // Shorthand
 
     expC('Start the function dirBkup.backupDirUsingSchema');
-    expC('isDryRun: true');
     expC('throws: false');
+    expC('isDryRun: true');
     expC('taskName: ' + taskName);
     expC('matched tasks number: 1');
 
@@ -418,6 +433,8 @@ describe('Run', function () {
     expC('Reading srcDir recursively...');
     expC('Comparing a difference of file ' + task.options.comparison);
     expC('Finished the function dirBkup.backupDir');
+
+    expect('Start the function dirBkup.archiveDir').not.toContain();
 
     expC('Finished the task: ' + taskName);
     expC('Finished the function dirBkup.backupDirUsingSchema');
@@ -467,7 +484,6 @@ describe('Run', function () {
     expC('srcDir: ' + task.srcDir + ' -> ' + srcDir);
     expC('destDir: ' + task.destDir + ' -> ' + destDir);
     expC('method: ' + task.method);
-    expC('options.exe7z: ${exe7z} -> ' + scm.components.exe7z);
 
     expC('Start the function dirBkup.archiveDir');
     expC('archiveType: ' + task.options.archiveType);
@@ -477,6 +493,8 @@ describe('Run', function () {
     expC('matchedRegExp: null');
     expC('ignoredRegExp: (' + task.options.ignoredRegExp + ')');
     expC('Finished the function dirBkup.archiveDir');
+
+    expect('Start the function dirBkup.backupDir').not.toContain();
 
     expC('Finished the task: userAppData:zip');
     expC('Finished the function dirBkup.backupDirUsingSchema');
@@ -530,6 +548,8 @@ describe('Run', function () {
     expC('Reading srcDir...');
     expect(rtn.stderr).toContain('Error: [] Error: ENOENT: no such file or directory');
 
+    expect('Start the function dirBkup.archiveDir').not.toContain();
+
     expC('Finished the function dirBkup.backupDirUsingSchema');
     expC('Finished the task: ' + taskName);
     expC('Finished the function dirBkup.backupDirUsingSchema');
@@ -557,7 +577,6 @@ describe('Run', function () {
     expC('isDryRun: true');
     expC('taskName: ' + asterisk);
     expC('matched tasks number: ' + Object.keys(tasks).length);
-    expC('Start the function dirBkup.backupDir');
 
     // Checking a task executed or not
     Object.keys(schema.tasks).forEach(function (taskName) {
@@ -570,7 +589,12 @@ describe('Run', function () {
       }
     });
 
+    expC('Start the function dirBkup.backupDir');
     expC('Finished the function dirBkup.backupDir');
+
+    expC('Start the function dirBkup.archiveDir');
+    expC('Finished the function dirBkup.archiveDir');
+
     expC('Finished the function dirBkup.backupDirUsingSchema');
   });
 });
