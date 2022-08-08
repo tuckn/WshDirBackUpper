@@ -1,6 +1,6 @@
 # WshDirBackUpper
 
-The WSH (Windows Script Host) CLI that updates or mirrors directories according to the schema defined in a JSON file.
+The WSH (Windows Script Host) CLI updates or mirrors or archives directories according to the schema defined in a JSON file.
 
 ## Operating environment
 
@@ -139,16 +139,18 @@ And can also use backing up options.
           ]
         }
       },
-      "appLog:current": {
+      "appLog:current:rar": {
         "srcDir": "D:\\AppLogs\\#{yyyy}\\#{MM}",
         "destDir": "\\MyNas\\AppLogs\\#{yyyy}\\#{MM}",
         "method": "ARCHIVE",
         "options": {
             "archiveType": "RAR", // default: "ZIP"
-            "dirWinRar": "C:\\My Apps\\WinRAR",
-            "dateCode": "yyyy-MM-dd",
-            "compressLv": 0,
-            "password": "This is mY&p@ss ^_<",
+            "archiveOptions": {
+              "dirWinRar": "C:\\My Apps\\WinRAR",
+              "dateCode": "yyyy-MM-dd",
+              "compressLv": 0,
+              "password": "This is mY&p@ss ^_<"
+            },
             "ignoredRegExp": ["^\\.git.*$"]
         }
       }
@@ -159,8 +161,8 @@ And can also use backing up options.
 See below to know all options.
 
 - When the `method` is `UPDATE` or `MIRROR`, You can use [WshDirBackUpper: typeSchemaBackUpperTask](https://docs.tuckn.net/WshDirBackUpper/global.html#typeSchemaBackUpperTask)
-- When the `method` is `ARCHIVE` and `archiveType` is `ZIP`, You can use [WshZLIB: typeDeflateZipOption](https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption)
-- When the `method` is `ARCHIVE` and `archiveType` is `RAR`, You can use [WshZLIB: typeDeflateRarOption](https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption)
+- When the `method` is `ARCHIVE` and `options.archiveType` is `ZIP`, You can use [WshZLIB: typeDeflateZipOption](https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption)
+- When the `method` is `ARCHIVE` and `options.archiveType` is `RAR`, You can use [WshZLIB: typeDeflateRarOption](https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption)
 
 You can use the `schemaBackup` command to perform processing from the schema JSON file.
 
