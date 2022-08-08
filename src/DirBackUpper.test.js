@@ -724,6 +724,7 @@ describe('DirBackUpper', function () {
     expC('archiveType: ZIP');
     expC('archiveOptions: {');
     expC('  isDryRun: true');
+    expC('  exe7z: "' + exe7z + '"');
     expC('  compressLv: 9');
     expC('  dateCode: "yyyy-MM-dd"');
     expC('  password: "This is mY&p@ss ^_<"');
@@ -780,6 +781,7 @@ describe('DirBackUpper', function () {
     expC('archiveType: ZIP');
     expC('archiveOptions: {');
     expect(logStr).not.toContain('isDryRun: true');
+    expC('  exe7z: "' + exe7z + '"');
     expC('  compressLv: 9');
     expC('  dateCode: "yyyy-MM-dd"');
     expC('  password: "This is mY&p@ss ^_<"');
@@ -815,11 +817,12 @@ describe('DirBackUpper', function () {
     expect('@TODO').toBe('Test to automaticaly confirm the archived file names and contents');
   });
 
+  var exe7zDummy = 'C:\\My Apps\\7-Zip\\7z.exe';
   var schema = {
     description: 'Example Schema WshDirBackUpper',
     components: {
       dest: '\\\\MyNas\\BackUp',
-      exe7z: 'C:\\My Apps\\7-Zip\\7z.exe',
+      exe7z: exe7zDummy,
       anyVal1: null
     },
     tasks: {
@@ -906,8 +909,8 @@ describe('DirBackUpper', function () {
 
     // Checking the executing log
     var logStr = fs.readFileSync(logFile, { encoding: 'utf8' });
-    var expC = expect(logStr).toContain; // Shorthand
 
+    var expC = expect(logStr).toContain; // Shorthand
     expC('Start the function dirBkup.backupDirUsingSchema');
     expC('isDryRun: true');
     expC('taskName: ' + asterisk);
@@ -928,6 +931,7 @@ describe('DirBackUpper', function () {
     expC('Finished the function dirBkup.backupDir');
 
     expC('Start the function dirBkup.archiveDir');
+    expC('  exe7z: "' + exe7zDummy + '"');
     expC('Finished the function dirBkup.archiveDir');
 
     expC('Finished the function dirBkup.backupDirUsingSchema');
@@ -1040,6 +1044,7 @@ describe('DirBackUpper', function () {
 
     expC('Start the function dirBkup.archiveDir');
     expC('archiveType: ' + task.options.archiveType);
+    expC('  exe7z: "' + exe7zDummy + '"');
     expC('forEachSubDir: true');
     expC('includesEmptyDir: false');
     expC('includesSymlink: false');

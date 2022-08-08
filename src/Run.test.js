@@ -266,12 +266,13 @@ describe('Run', function () {
     // ...
   });
 
+  var exe7zDummy = 'C:\\My Apps\\7-Zip\\7z.exe';
   var schema = {
     dirBackUpperSchema: {
       description: 'Example Schema WshDirBackUpper',
       components: {
         dest: '\\\\MyNas\\BackUp',
-        exe7z: 'C:\\My Apps\\7-Zip\\7z.exe',
+        exe7z: exe7zDummy,
         anyVal1: null
       },
       tasks: {
@@ -380,6 +381,7 @@ describe('Run', function () {
     expC('Finished the function dirBkup.backupDir');
 
     expC('Start the function dirBkup.archiveDir');
+    expC('  exe7z: "' + exe7zDummy + '"');
     expC('Finished the function dirBkup.archiveDir');
 
     expC('Finished the function dirBkup.backupDirUsingSchema');
@@ -487,6 +489,7 @@ describe('Run', function () {
 
     expC('Start the function dirBkup.archiveDir');
     expC('archiveType: ' + task.options.archiveType);
+    expC('  exe7z: "' + exe7zDummy + '"');
     expC('forEachSubDir: true');
     expC('includesEmptyDir: false');
     expC('includesSymlink: false');

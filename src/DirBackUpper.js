@@ -33,6 +33,8 @@
   var isBoolean = util.isBoolean;
   var isString = util.isString;
   var isEmpty = util.isEmpty;
+  var isSolidArray = util.isSolidArray;
+  var isSolidObject = util.isSolidObject;
   var isSolidString = util.isSolidString;
   var isPlainObject = util.isPlainObject;
   var isSameMeaning = util.isSameMeaning;
@@ -664,17 +666,24 @@
       // Setting parameters
 
       // Parsing with the component values
-      var parseComponentStr = function (val) {
-        if (!isSolidString(val)) return val;
-        return parseDate(parseTmp(val || '', cmpVals));
+      var parseComponentStr = function (obj, key) {
+        var val = obj[key];
+
+        if (isString(val)) {
+          obj[key] = parseDate(parseTmp(val || '', cmpVals));
+          lggr.info(key + ': ' + val + ' -> ' + obj[key]);
+          return;
+        }
+
+        if (isSolidObject(val)) {
+          Object.keys(val).forEach(function (keyInVal) {
+            parseComponentStr(obj[key], keyInVal);
+          });
+        }
       };
 
-      Object.keys(tsk).forEach(function (key) {
-        if (isString(tsk[key])) {
-          var preVal = tsk[key];
-          tsk[key] = parseComponentStr(preVal);
-          lggr.info(key + ': ' + preVal + ' -> ' + tsk[key]);
-        }
+      Object.keys(tsk).forEach(function (propName) {
+        parseComponentStr(tsk, propName);
       });
 
       var method = obtain(tsk, 'method');
