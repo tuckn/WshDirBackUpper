@@ -85,8 +85,8 @@
    * @param {boolean} [options.includesSymlink=false] - Copies symbolic link.
    * @param {string|Array} [options.matchedRegExp] - e.g. "\\w+\\.txt$"
    * @param {string|Array} [options.ignoredRegExp] - e.g. "\\.tmp$"
-   * @param {(Logger|string|object)} [options.logger] - The Logger instance or create options. See {@link https://docs.tuckn.net/WshLogger/Wsh.Logger.html#.create|Wsh.Logger.create}.
-   * @param {boolean} [options.transportsLog=true] - Outputs Wsh.Logger logs after connecting. See {@link https://docs.tuckn.net/WshLogger/Wsh.Logger.html#.this.transport|Wsh.Logger.transport}.
+   * @param {(Logger|string|object)} [options.logger] - The Logger instance or create options. See {@link https://tuckn.net/docs/WshLogger/Wsh.Logger.html#.create|Wsh.Logger.create}.
+   * @param {boolean} [options.transportsLog=true] - Outputs Wsh.Logger logs after connecting. See {@link https://tuckn.net/docs/WshLogger/Wsh.Logger.html#.this.transport|Wsh.Logger.transport}.
    * @param {boolean} [options.isDryRun=false] - No execute, returns the string of command.
    * @param {boolean} [options.throws=false] - Throws a error.
    * @returns {void}
@@ -279,17 +279,17 @@
    * @param {string} dest - The destination directory path.
    * @param {object} [options] - Optional parameters.
    * @param {string} [options.archiveType='ZIP'] - The archiving method, 'ZIP' (default) or 'RAR'
-   * @param {typeDeflateZipOption|typeDeflateRarOption} [options.archiveOptions] - Optional parameters. See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption|Wsh.ZLIB.typeDeflateZipOption} and {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption|Wsh.ZLIB.typeDeflateRarOption}.
+   * @param {typeDeflateZipOption|typeDeflateRarOption} [options.archiveOptions] - Optional parameters. See {@link https://tuckn.net/docs/WshZLIB/global.html#typeDeflateZipOption|Wsh.ZLIB.typeDeflateZipOption} and {@link https://tuckn.net/docs/WshZLIB/global.html#typeDeflateRarOption|Wsh.ZLIB.typeDeflateRarOption}.
    * @param {boolean} [options.forEachSubDir=true] - Compresses each sub directory in the specified source directory.
    * @param {boolean} [options.rootFilesName='RootFiles'] - When forEachSubDire option is true, root files are archived as this name. (default: 'RootFiles')
    * @param {boolean} [options.includesEmptyDir=false] - Compresses empty directories.
    * @param {boolean} [options.includesSymlink=false] - Compresses symbolic links.
    * @param {string|Array} [options.matchedRegExp] - When forEachSubDir option is true, matched RegExp only for the root directories and files in the source. e.g. "^[^.].+$"
    * @param {string|Array} [options.ignoredRegExp] - When forEachSubDir option is true, ignored RegExp only for the root directories and files in the source. e.g. "\\.git.*"
-   * @param {(Logger|string|object)} [options.logger] - The Logger instance or create options. See {@link https://docs.tuckn.net/WshLogger/Wsh.Logger.html#.create|Wsh.Logger.create}.
+   * @param {(Logger|string|object)} [options.logger] - The Logger instance or create options. See {@link https://tuckn.net/docs/WshLogger/Wsh.Logger.html#.create|Wsh.Logger.create}.
    * @param {boolean} [options.isDryRun=false] - No execute, returns the string of command.
    * @param {boolean} [options.throws=false] - Throws a error.
-   * @param {boolean} [options.transportsLog=true] - Outputs Wsh.Logger logs after connecting. See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateResult|Wsh.ZLIB.typeDeflateResult}.
+   * @param {boolean} [options.transportsLog=true] - Outputs Wsh.Logger logs after connecting. See {@link https://tuckn.net/docs/WshZLIB/global.html#typeDeflateResult|Wsh.ZLIB.typeDeflateResult}.
    * @returns {typeDeflateResult|typeDeflateResult[]|string|string[]} - @see typeDeflateResult. If options.isDryRun is true, returns string.
    */
   dirBkup.archiveDir = function (srcDir, dest, options) {
@@ -489,7 +489,7 @@
    */
 
   /**
-   * @typedef {typeDeflateZipOption|typeDeflateRarOption} typeSchemaArchiverTask - See {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption|Wsh.ZLIB.typeDeflateZipOption} and {@link https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption|Wsh.ZLIB.typeDeflateRarOption}.
+   * @typedef {typeDeflateZipOption|typeDeflateRarOption} typeSchemaArchiverTask - See {@link https://tuckn.net/docs/WshZLIB/global.html#typeDeflateZipOption|Wsh.ZLIB.typeDeflateZipOption} and {@link https://tuckn.net/docs/WshZLIB/global.html#typeDeflateRarOption|Wsh.ZLIB.typeDeflateRarOption}.
    * @property {string} [description] - The task description.
    * @property {boolean} [available=true] - If specifying false, Skips the task.
    * @property {string} srcDir - The source directory path to archive.

@@ -114,7 +114,7 @@ You can also use a date code literal to define `srcDir` and `destDir`.
 }
 ```
 
-See [WshUtil: parseDateLiteral](https://docs.tuckn.net/WshUtil/Wsh.Util.html#.parseDateLiteral) for the literal.
+See [WshUtil: parseDateLiteral](https://tuckn.net/docs/WshUtil/Wsh.Util.html#.parseDateLiteral) for the literal.
 
 And can also use backing up options.
 
@@ -160,9 +160,9 @@ And can also use backing up options.
 
 See below to know all options.
 
-- When the `method` is `UPDATE` or `MIRROR`, You can use [WshDirBackUpper: typeSchemaBackUpperTask](https://docs.tuckn.net/WshDirBackUpper/global.html#typeSchemaBackUpperTask)
-- When the `method` is `ARCHIVE` and `options.archiveType` is `ZIP`, You can use [WshZLIB: typeDeflateZipOption](https://docs.tuckn.net/WshZLIB/global.html#typeDeflateZipOption)
-- When the `method` is `ARCHIVE` and `options.archiveType` is `RAR`, You can use [WshZLIB: typeDeflateRarOption](https://docs.tuckn.net/WshZLIB/global.html#typeDeflateRarOption)
+- When the `method` is `UPDATE` or `MIRROR`, You can use [WshDirBackUpper: typeSchemaBackUpperTask](https://tuckn.net/docs/WshDirBackUpper/global.html#typeSchemaBackUpperTask)
+- When the `method` is `ARCHIVE` and `options.archiveType` is `ZIP`, You can use [WshZLIB: typeDeflateZipOption](https://tuckn.net/docs/WshZLIB/global.html#typeDeflateZipOption)
+- When the `method` is `ARCHIVE` and `options.archiveType` is `RAR`, You can use [WshZLIB: typeDeflateRarOption](https://tuckn.net/docs/WshZLIB/global.html#typeDeflateRarOption)
 
 You can use the `schemaBackup` command to perform processing from the schema JSON file.
 
@@ -199,8 +199,8 @@ Options:
   -h, --help             Output usage information
 ```
 
-See [Wsh.ConfigStore](https://docs.tuckn.net/WshConfigStore/) for the options `--dir-path` and `--file-name`.
-and see [Wsh.Logger](https://docs.tuckn.net/WshLogger/) for the options `--logger`.
+See [Wsh.ConfigStore](https://tuckn.net/docs/WshConfigStore/) for the options `--dir-path` and `--file-name`.
+and see [Wsh.Logger](https://tuckn.net/docs/WshLogger/) for the options `--logger`.
 
 ## Installation as Module
 
@@ -345,7 +345,7 @@ You can also use [tuckn/WshBasicPackage](https://github.com/tuckn/WshBasicPackag
 
 ## Documentation
 
-See all specifications [here](https://docs.tuckn.net/WshDirBackUpper) and also [WshBasicPackage](https://docs.tuckn.net/WshBasicPackage).
+See all specifications [here](https://tuckn.net/docs/WshDirBackUpper/) and also [WshBasicPackage](https://tuckn.net/docs/WshBasicPackage/).
 
 ## License
 
